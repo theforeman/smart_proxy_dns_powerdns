@@ -1,6 +1,6 @@
 require 'dns/dns'
 
-module Proxy::Dns::PluginTemplate
+module Proxy::Dns::Powerdns
   class Record < ::Proxy::Dns::Record
     include Proxy::Log
     include Proxy::Util
@@ -8,12 +8,12 @@ module Proxy::Dns::PluginTemplate
     attr_reader :example_setting
 
     def self.record(attrs = {})
-      new(attrs.merge(:example_setting => ::Proxy::Dns::PluginTemplate::Plugin.settings.example_setting))
+      new(attrs.merge(:example_setting => ::Proxy::Dns::Powerdns::Plugin.settings.example_setting))
     end
 
     def initialize options = {}
       @example_setting = options[:example_setting]
-      raise "dns_plugin_template provider needs 'example_setting' option" unless example_setting
+      raise "dns_powerdns provider needs 'example_setting' option" unless example_setting
       super(options)
     end
 

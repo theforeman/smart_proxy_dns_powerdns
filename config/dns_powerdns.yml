@@ -1,0 +1,6 @@
+---
+#
+# Configuration file for 'dns_powerdns' dns provider
+#
+
+:example_setting: example

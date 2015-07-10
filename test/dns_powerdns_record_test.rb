@@ -1,8 +1,8 @@
 require 'test_helper'
 
-require 'smart_proxy_dns_plugin_template/dns_plugin_template_main'
+require 'smart_proxy_dns_powerdns/dns_powerdns_main'
 
-class DnsPluginTemplateRecordTest < Test::Unit::TestCase
+class DnsPowerdnsRecordTest < Test::Unit::TestCase
   # Test that a missing :example_setting throws an error
   def test_initialize_without_settings
     assert_raise(RuntimeError) do
@@ -84,7 +84,7 @@ class DnsPluginTemplateRecordTest < Test::Unit::TestCase
   private
 
   def klass
-    Proxy::Dns::PluginTemplate::Record
+    Proxy::Dns::Powerdns::Record
   end
 
   def settings
