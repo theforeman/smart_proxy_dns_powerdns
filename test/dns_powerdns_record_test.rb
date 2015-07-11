@@ -6,79 +6,95 @@ class DnsPowerdnsRecordTest < Test::Unit::TestCase
   # Test that a missing :example_setting throws an error
   def test_initialize_without_settings
     assert_raise(RuntimeError) do
-      klass.new(settings.delete_if { |k,v| k == :example_setting })
+      klass.new(settings.delete_if { |k,v| k == :powerdns_mysql_hostname })
     end
   end
 
   # Test that correct initialization works
   def test_initialize_with_settings
     assert_nothing_raised do
+      mock_mysql
+
       klass.new(settings)
     end
   end
 
   # Test A record creation
   def test_create_a
-    # Use mocha to expect any calls to backend services to prevent creating real records
-    #   MyService.expects(:create).with(:ip => '10.1.1.1', :name => 'test.example.com').returns(true)
+    mock_mysql
 
-    assert klass.new(settings).create
+    instance = klass.new(settings)
+
+    instance.expects(:domain_id).returns(1)
+    instance.expects(:dns_find).with('test.example.com').returns(false)
+    instance.expects(:domain_id).returns(1)
+    instance.expects(:create_record).with(1, 'test.example.com', 84600, '10.1.1.1', 'A').returns(true)
+
+    assert instance.create
   end
 
   # Test A record creation fails if the record exists
   def test_create_a_conflict
-    # Use mocha to expect any calls to backend services to prevent creating real records
-    #   MyService.expects(:create).with(:ip => '10.1.1.1', :name => 'test.example.com').returns(false)
+    mock_mysql
 
-    assert_raise(Proxy::Dns::Collision) { klass.new(settings).create }
+    instance = klass.new(settings)
+
+    instance.expects(:domain_id).returns(1)
+    instance.expects(:dns_find).with('test.example.com').returns('192.168.1.1')
+
+    assert_raise(Proxy::Dns::Collision) { instance.create }
   end
 
   # Test PTR record creation
   def test_create_ptr
-    # Use mocha to expect any calls to backend services to prevent creating real records
-    #   MyService.expects(:create_reverse).with(:ip => '10.1.1.1', :name => 'test.example.com').returns(true)
+    mock_mysql
 
-    assert klass.new(settings.merge(:type => 'PTR')).create
+    instance = klass.new(settings.merge(:type => 'PTR'))
+
+    instance.expects(:domain_id).returns(1)
+    instance.expects(:dns_find).with('1.1.1.10.in-addr.arpa').returns(false)
+    instance.expects(:domain_id).returns(1)
+    instance.expects(:create_record).with(1, '1.1.1.10.in-addr.arpa', 84600, 'test.example.com', 'PTR').returns(true)
+
+    assert instance.create
   end
 
   # Test PTR record creation fails if the record exists
   def test_create_ptr_conflict
-    # Use mocha to expect any calls to backend services to prevent creating real records
-    #   MyService.expects(:create_reverse).with(:ip => '10.1.1.1', :name => 'test.example.com').returns(false)
+    mock_mysql
 
-    assert_raise(Proxy::Dns::Collision) { klass.new(settings.merge(:type => 'PTR')).create }
+    instance = klass.new(settings.merge(:type => 'PTR'))
+
+    instance.expects(:domain_id).returns(1)
+    instance.expects(:dns_find).with('1.1.1.10.in-addr.arpa').returns('test2.example.com')
+
+    assert_raise(Proxy::Dns::Collision) { instance.create }
   end
 
   # Test A record removal
   def test_remove_a
-    # Use mocha to expect any calls to backend services to prevent deleting real records
-    #   MyService.expects(:delete).with(:name => 'test.example.com').returns(true)
+    mock_mysql
 
-    assert klass.new(settings).remove
-  end
+    instance = klass.new(settings)
 
-  # Test A record removal fails if the record doesn't exist
-  def test_remove_a_not_found
-    # Use mocha to expect any calls to backend services to prevent deleting real records
-    #   MyService.expects(:delete).with(:name => 'test.example.com').returns(false)
+    instance.expects(:delete_record).with('test.example.com', 'A').returns(true)
 
-    assert_raise(Proxy::Dns::NotFound) { assert klass.new(settings).remove }
+    assert instance.remove
   end
 
   # Test PTR record removal
   def test_remove_ptr
-    # Use mocha to expect any calls to backend services to prevent deleting real records
-    #   MyService.expects(:delete).with(:ip => '10.1.1.1').returns(true)
+    mock_mysql
 
-    assert klass.new(settings.merge(:type => 'PTR')).remove
+    instance = klass.new(settings.merge(:type => 'PTR'))
+
+    instance.expects(:delete_record).with('1.1.1.10.in-addr.arpa', 'PTR').returns(true)
+
+    assert instance.remove
   end
 
-  # Test PTR record removal fails if the record doesn't exist
-  def test_remove_ptr_not_found
-    # Use mocha to expect any calls to backend services to prevent deleting real records
-    #   MyService.expects(:delete).with(:ip => '10.1.1.1').returns(false)
-
-    assert_raise(Proxy::Dns::NotFound) { assert klass.new(settings.merge(:type => 'PTR')).remove }
+  def mock_mysql
+    Mysql2::Client.expects(:new).with(:host => 'localhost', :username => 'username', :password => 'password', :database => 'powerdns').returns(false)
   end
 
   private
@@ -89,10 +105,14 @@ class DnsPowerdnsRecordTest < Test::Unit::TestCase
 
   def settings
     {
-      :example_setting => 'foo',
+      :powerdns_mysql_hostname => 'localhost',
+      :powerdns_mysql_username => 'username',
+      :powerdns_mysql_password => 'password',
+      :powerdns_mysql_database => 'powerdns',
       :fqdn => 'test.example.com',
       :value => '10.1.1.1',
-      :type => 'A'
+      :type => 'A',
+      :ttl => 84600,
     }
   end
 end
