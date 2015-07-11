@@ -38,21 +38,18 @@ module Proxy::Dns::Powerdns
         when "A"
           if ip = dns_find(@fqdn)
             raise Proxy::Dns::Collision, "#{@fqdn} is already in use by #{ip}"
-          else
-            create_record(domain_id, @fqdn, @ttl, @value, @type)
           end
 
-          true
+          create_record(domain_id, @fqdn, @ttl, @value, @type)
         when "PTR"
           ip = IPAddr.new(@value)
           ptrname = ip.reverse
+
           if name = dns_find(ptrname)
             raise Proxy::Dns::Collision, "#{@value} is already used by #{name}"
-          else
-            create_record(domain_id, ptrname, @ttl, @fqdn, @type)
           end
 
-          true
+          create_record(domain_id, ptrname, @ttl, @fqdn, @type)
       end
     end
 
@@ -60,14 +57,10 @@ module Proxy::Dns::Powerdns
       case @type
         when "A"
           delete_record(@fqdn, @type)
-
-          true
         when "PTR"
           ip = IPAddr.new(@value)
           ptrname = ip.reverse
           delete_record(ptrname, @type)
-
-          true
       end
     end
 
@@ -113,6 +106,7 @@ module Proxy::Dns::Powerdns
       type = @mysql_connection.escape(type)
       @mysql_connection.query("INSERT INTO records (domain_id, name, ttl, content, type) VALUES (#{domain_id}, '#{name}', #{ttl}, '#{content}', '#{type}')")
       # TODO: run rectify-zone
+      true
     end
 
     private
@@ -121,6 +115,7 @@ module Proxy::Dns::Powerdns
       type = @mysql_connection.escape(type)
       @mysql_connection.query("DELETE FROM records WHERE name='#{name}' AND type='#{type}'")
       # TODO: run rectify-zone
+      true
     end
   end
 end
