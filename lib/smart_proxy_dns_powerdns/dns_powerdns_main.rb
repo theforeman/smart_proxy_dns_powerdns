@@ -1,4 +1,5 @@
 require 'dns/dns'
+require 'ipaddr'
 require 'mysql2'
 
 module Proxy::Dns::Powerdns
