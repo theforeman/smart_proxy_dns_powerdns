@@ -14,7 +14,7 @@ module Proxy::Dns::Powerdns
         :powerdns_mysql_hostname => ::Proxy::Dns::Powerdns::Plugin.settings.powerdns_mysql_hostname,
         :powerdns_mysql_username => ::Proxy::Dns::Powerdns::Plugin.settings.powerdns_mysql_username,
         :powerdns_mysql_password => ::Proxy::Dns::Powerdns::Plugin.settings.powerdns_mysql_password,
-        :powerdns_mysql_database => ::Proxy::Dns::Powerdns::Plugin.settings.powerdns_mysql_database,
+        :powerdns_mysql_database => ::Proxy::Dns::Powerdns::Plugin.settings.powerdns_mysql_database
       ))
     end
 
@@ -27,7 +27,7 @@ module Proxy::Dns::Powerdns
         :host => options[:powerdns_mysql_hostname],
         :username => options[:powerdns_mysql_username],
         :password => options[:powerdns_mysql_password],
-        :database => options[:powerdns_mysql_database],
+        :database => options[:powerdns_mysql_database]
       )
       super(options)
     end
