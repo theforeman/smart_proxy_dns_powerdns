@@ -29,55 +29,39 @@ module Proxy::Dns::Powerdns
         :password => options[:powerdns_mysql_password],
         :database => options[:powerdns_mysql_database]
       )
+
+      # Normalize the somewhat weird PTR API spec to name / content
+      case options[:type]
+      when "PTR"
+        @name = IPAddr.new(options[:value]).reverse
+        @content = options[:fqdn]
+      else
+        @name = options[:fqdn]
+        @content = options[:value]
+      end
+
       super(options)
     end
 
     def create
       raise Proxy::Dns::Error, "Unable to determine zone. Zone must exist in PowerDNS." unless domain_id
 
-      case @type
-        when "A"
-          if ip = dns_find(@fqdn)
-            raise Proxy::Dns::Collision, "#{@fqdn} is already in use by #{ip}"
-          end
-
-          create_record(domain_id, @fqdn, @ttl, @value, @type)
-        when "PTR"
-          ip = IPAddr.new(@value)
-          ptrname = ip.reverse
-
-          if name = dns_find(ptrname)
-            raise Proxy::Dns::Collision, "#{@value} is already used by #{name}"
-          end
-
-          create_record(domain_id, ptrname, @ttl, @fqdn, @type)
+      if ip = dns_find(@name)
+        raise Proxy::Dns::Collision, "#{@name} is already in use by #{ip}"
       end
+
+      create_record(domain_id, @name, @ttl, @content, @type)
     end
 
     def remove
-      case @type
-        when "A"
-          delete_record(@fqdn, @type)
-        when "PTR"
-          ip = IPAddr.new(@value)
-          ptrname = ip.reverse
-          delete_record(ptrname, @type)
-      end
+      delete_record(@name, @type)
     end
 
     private
     def domain_id
-      case @type
-      when "A"
-        name = @fqdn
-      when "PTR"
-        ip = IPAddr.new(@value)
-        name = ip.reverse
-      end
-
       id = nil
 
-      name = mysql_connection.escape(name)
+      name = mysql_connection.escape(@name)
       mysql_connection.query("SELECT LENGTH(name) domain_length, id FROM domains WHERE '#{name}' LIKE CONCAT('%%.', name) ORDER BY domain_length DESC LIMIT 1").each do |row|
         id = row["id"]
       end
