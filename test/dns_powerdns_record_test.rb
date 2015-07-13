@@ -75,8 +75,8 @@ class DnsPowerdnsRecordTest < Test::Unit::TestCase
 
     instance = klass.new(settings)
 
-    instance.expects(:domain).returns({'id' => 1})
-    instance.expects(:delete_record).with('test.example.com', 'A').returns(true)
+    instance.expects(:domain).returns({'id' => 1, 'name' => 'example.com'})
+    instance.expects(:delete_record).with(1, 'test.example.com', 'A').returns(true)
 
     assert instance.remove
   end
@@ -87,8 +87,8 @@ class DnsPowerdnsRecordTest < Test::Unit::TestCase
 
     instance = klass.new(settings.merge(:type => 'PTR'))
 
-    instance.expects(:domain).returns({'id' => 1})
-    instance.expects(:delete_record).with('1.1.1.10.in-addr.arpa', 'PTR').returns(true)
+    instance.expects(:domain).returns({'id' => 1, 'name' => '1.1.10.in-addr.arpa'})
+    instance.expects(:delete_record).with(1, '1.1.1.10.in-addr.arpa', 'PTR').returns(true)
 
     assert instance.remove
   end

@@ -62,7 +62,7 @@ module Proxy::Dns::Powerdns
       domain_row = domain
       raise Proxy::Dns::Error, "Unable to determine zone. Zone must exist in PowerDNS." unless domain_row
 
-      delete_record(@name, @type)
+      delete_record(domain_row['id'], @name, @type)
     end
 
     private
@@ -98,10 +98,10 @@ module Proxy::Dns::Powerdns
     end
 
     private
-    def delete_record name, type
+    def delete_record domain_id, name, type
       name = mysql_connection.escape(name)
       type = mysql_connection.escape(type)
-      mysql_connection.query("DELETE FROM records WHERE name='#{name}' AND type='#{type}'")
+      mysql_connection.query("DELETE FROM records WHERE domain_id=#{domain_id} AND name='#{name}' AND type='#{type}'")
       # TODO: run rectify-zone
       true
     end
