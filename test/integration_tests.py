@@ -7,6 +7,7 @@ import requests
 import socket
 import string
 import struct
+import subprocess
 
 
 @pytest.fixture
@@ -36,6 +37,10 @@ def ip():
     return socket.inet_ntoa(struct.pack("!I", random.randint(1, 2 ** 32)))
 
 
+def purge_cache(name):
+    subprocess.check_output(['sudo', 'pdns_control', 'purge', name])
+
+
 def test_forward_dns(resolver, smart_proxy_url, fqdn, ip):
     response = requests.post(smart_proxy_url + 'dns/',
                              data={'fqdn': fqdn, 'value': ip, 'type': 'A'})
@@ -47,6 +52,8 @@ def test_forward_dns(resolver, smart_proxy_url, fqdn, ip):
 
     response = requests.delete(smart_proxy_url + 'dns/' + fqdn)
     response.raise_for_status()
+
+    purge_cache(fqdn)
 
     with pytest.raises(dns.resolver.NXDOMAIN):
         resolver.query(fqdn, 'A')
@@ -65,6 +72,8 @@ def test_reverse_dns(resolver, smart_proxy_url, fqdn, ip):
 
     response = requests.delete(smart_proxy_url + 'dns/' + name.to_text().rstrip('.'))
     response.raise_for_status()
+
+    purge_cache(name.to_text())
 
     with pytest.raises(dns.resolver.NXDOMAIN):
         resolver.query(name, 'PTR')
