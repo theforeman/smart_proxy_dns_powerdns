@@ -7,7 +7,7 @@ module Proxy::Dns::Powerdns
     include Proxy::Log
     include Proxy::Util
 
-    attr_reader :powerdns_mysql_hostname, :powerdns_mysql_username, :powerdns_mysql_password, :powerdns_mysql_database
+    attr_reader :mysql_connection
 
     def self.record(attrs = {})
       new(attrs.merge(
@@ -77,8 +77,8 @@ module Proxy::Dns::Powerdns
 
       id = nil
 
-      name = @mysql_connection.escape(name)
-      @mysql_connection.query("SELECT LENGTH(name) domain_length, id FROM domains WHERE '#{name}' LIKE CONCAT('%%.', name) ORDER BY domain_length DESC LIMIT 1").each do |row|
+      name = mysql_connection.escape(name)
+      mysql_connection.query("SELECT LENGTH(name) domain_length, id FROM domains WHERE '#{name}' LIKE CONCAT('%%.', name) ORDER BY domain_length DESC LIMIT 1").each do |row|
         id = row["id"]
       end
 
@@ -88,8 +88,8 @@ module Proxy::Dns::Powerdns
     private
     def dns_find key
       value = nil
-      key = @mysql_connection.escape(key)
-      @mysql_connection.query("SELECT content FROM records WHERE domain_id=#{domain_id} AND name = '#{key}' LIMIT 1").each do |row|
+      key = mysql_connection.escape(key)
+      mysql_connection.query("SELECT content FROM records WHERE domain_id=#{domain_id} AND name = '#{key}' LIMIT 1").each do |row|
         value = row["content"]
       end
       if value != nil
@@ -101,20 +101,20 @@ module Proxy::Dns::Powerdns
 
     private
     def create_record domain_id, name, ttl, content, type
-      name = @mysql_connection.escape(name)
-      content = @mysql_connection.escape(content)
-      ttl = @mysql_connection.escape(ttl)
-      type = @mysql_connection.escape(type)
-      @mysql_connection.query("INSERT INTO records (domain_id, name, ttl, content, type) VALUES (#{domain_id}, '#{name}', #{ttl}, '#{content}', '#{type}')")
+      name = mysql_connection.escape(name)
+      content = mysql_connection.escape(content)
+      ttl = mysql_connection.escape(ttl)
+      type = mysql_connection.escape(type)
+      mysql_connection.query("INSERT INTO records (domain_id, name, ttl, content, type) VALUES (#{domain_id}, '#{name}', #{ttl}, '#{content}', '#{type}')")
       # TODO: run rectify-zone
       true
     end
 
     private
     def delete_record name, type
-      name = @mysql_connection.escape(name)
-      type = @mysql_connection.escape(type)
-      @mysql_connection.query("DELETE FROM records WHERE name='#{name}' AND type='#{type}'")
+      name = mysql_connection.escape(name)
+      type = mysql_connection.escape(type)
+      mysql_connection.query("DELETE FROM records WHERE name='#{name}' AND type='#{type}'")
       # TODO: run rectify-zone
       true
     end
