@@ -92,11 +92,7 @@ module Proxy::Dns::Powerdns
       mysql_connection.query("SELECT content FROM records WHERE domain_id=#{domain_id} AND name = '#{key}' LIMIT 1").each do |row|
         value = row["content"]
       end
-      if value != nil
-        value
-      else
-        false
-      end
+      value || false
     end
 
     private
