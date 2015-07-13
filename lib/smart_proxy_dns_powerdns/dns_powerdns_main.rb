@@ -33,7 +33,11 @@ module Proxy::Dns::Powerdns
       # Normalize the somewhat weird PTR API spec to name / content
       case options[:type]
       when "PTR"
-        @name = IPAddr.new(options[:value]).reverse
+        if options[:value] =~ /\.(in-addr|ip6)\.arpa$/
+          @name = options[:value]
+        else
+          @name = IPAddr.new(options[:value]).reverse
+        end
         @content = options[:fqdn]
       else
         @name = options[:fqdn]

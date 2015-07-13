@@ -57,12 +57,14 @@ def test_reverse_dns(resolver, smart_proxy_url, fqdn, ip):
                              data={'fqdn': fqdn, 'value': ip, 'type': 'PTR'})
     response.raise_for_status()
 
-    answer = resolver.query(dns.reversename.from_address(ip), 'PTR')
+    name = dns.reversename.from_address(ip)
+
+    answer = resolver.query(name, 'PTR')
     assert len(answer.rrset.items) == 1
     assert answer.rrset.items[0].target.to_text() == fqdn + '.'
 
-    response = requests.delete(smart_proxy_url + 'dns/' + ip)
+    response = requests.delete(smart_proxy_url + 'dns/' + name.to_text().rstrip('.'))
     response.raise_for_status()
 
     with pytest.raises(dns.resolver.NXDOMAIN):
-        resolver.query(fqdn, 'PTR')
+        resolver.query(name, 'PTR')
