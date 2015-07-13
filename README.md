@@ -22,6 +22,16 @@ Configuration options for this plugin are in `/etc/foreman-proxy/settings.d/dns_
     :powerdns_mysql_password: ''
     :powerdns_mysql_database: 'powerdns'
 
+### DNSSEC
+
+In case you've enabled DNSSEC (as you should), a rectify-zone is required after every zone change. The pdnssec command is configurable:
+
+    :powerdns_pdnssec: 'pdnssec'
+
+Or a more complex example:
+
+    :powerdns_pdnssec: 'sudo pdnssec --config-name=myconfig'
+
 ## Contributing
 
 Fork and send a Pull Request. Thanks!

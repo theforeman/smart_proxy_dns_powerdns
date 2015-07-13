@@ -7,14 +7,15 @@ module Proxy::Dns::Powerdns
     include Proxy::Log
     include Proxy::Util
 
-    attr_reader :mysql_connection
+    attr_reader :mysql_connection, :powerdns_pdnssec
 
     def self.record(attrs = {})
       new(attrs.merge(
         :powerdns_mysql_hostname => ::Proxy::Dns::Powerdns::Plugin.settings.powerdns_mysql_hostname,
         :powerdns_mysql_username => ::Proxy::Dns::Powerdns::Plugin.settings.powerdns_mysql_username,
         :powerdns_mysql_password => ::Proxy::Dns::Powerdns::Plugin.settings.powerdns_mysql_password,
-        :powerdns_mysql_database => ::Proxy::Dns::Powerdns::Plugin.settings.powerdns_mysql_database
+        :powerdns_mysql_database => ::Proxy::Dns::Powerdns::Plugin.settings.powerdns_mysql_database,
+        :powerdns_pdnssec => ::Proxy::Dns::Powerdns::Plugin.settings.powerdns_pdnssec
       ))
     end
 
@@ -29,6 +30,8 @@ module Proxy::Dns::Powerdns
         :password => options[:powerdns_mysql_password],
         :database => options[:powerdns_mysql_database]
       )
+
+      @powerdns_pdnssec = options[:powerdns_pdnssec] || false
 
       # Normalize the somewhat weird PTR API spec to name / content
       case options[:type]
@@ -56,6 +59,8 @@ module Proxy::Dns::Powerdns
       end
 
       create_record(domain_row['id'], @name, @ttl, @content, @type)
+
+      rectify_zone(domain_row['name'])
     end
 
     def remove
@@ -63,6 +68,8 @@ module Proxy::Dns::Powerdns
       raise Proxy::Dns::Error, "Unable to determine zone. Zone must exist in PowerDNS." unless domain_row
 
       delete_record(domain_row['id'], @name, @type)
+
+      rectify_zone(domain_row['name'])
     end
 
     private
@@ -70,7 +77,7 @@ module Proxy::Dns::Powerdns
       domain = nil
 
       name = mysql_connection.escape(@name)
-      mysql_connection.query("SELECT LENGTH(name) domain_length, id FROM domains WHERE '#{name}' LIKE CONCAT('%%.', name) ORDER BY domain_length DESC LIMIT 1").each do |row|
+      mysql_connection.query("SELECT LENGTH(name) domain_length, id, name FROM domains WHERE '#{name}' LIKE CONCAT('%%.', name) ORDER BY domain_length DESC LIMIT 1").each do |row|
         domain = row
       end
 
@@ -93,7 +100,6 @@ module Proxy::Dns::Powerdns
       content = mysql_connection.escape(content)
       type = mysql_connection.escape(type)
       mysql_connection.query("INSERT INTO records (domain_id, name, ttl, content, type) VALUES (#{domain_id}, '#{name}', #{ttl.to_i}, '#{content}', '#{type}')")
-      # TODO: run rectify-zone
       true
     end
 
@@ -102,8 +108,18 @@ module Proxy::Dns::Powerdns
       name = mysql_connection.escape(name)
       type = mysql_connection.escape(type)
       mysql_connection.query("DELETE FROM records WHERE domain_id=#{domain_id} AND name='#{name}' AND type='#{type}'")
-      # TODO: run rectify-zone
       true
+    end
+
+    private
+    def rectify_zone domain
+      if @powerdns_pdnssec
+        %x(#{@powerdns_pdnssec} rectify-zone "#{domain}")
+
+        $?.exitstatus == 0
+      else
+        true
+      end
     end
   end
 end
