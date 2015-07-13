@@ -17,7 +17,10 @@ To enable this DNS provider, edit `/etc/foreman-proxy/settings.d/dns.yml` and se
 
 Configuration options for this plugin are in `/etc/foreman-proxy/settings.d/dns_powerdns.yml` and include:
 
-* example_setting: change this as an example
+    :powerdns_mysql_hostname: 'localhost'
+    :powerdns_mysql_username: 'powerdns'
+    :powerdns_mysql_password: ''
+    :powerdns_mysql_database: 'powerdns'
 
 ## Contributing
 

@@ -4,7 +4,7 @@
 #
 
 # use these settings for powerdns
-#:powerdns_mysql_database:
 #:powerdns_mysql_hostname:
 #:powerdns_mysql_username:
 #:powerdns_mysql_password:
+#:powerdns_mysql_database:
