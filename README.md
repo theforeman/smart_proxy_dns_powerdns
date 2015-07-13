@@ -26,6 +26,26 @@ Configuration options for this plugin are in `/etc/foreman-proxy/settings.d/dns_
 
 Fork and send a Pull Request. Thanks!
 
+### Running the integration tests
+
+Since I'm mostly a python developer, I've written the integration tests in python.
+
+First you need to run the smart proxy on `http://localhost:8000` and a powerdns instance on `127.0.0.1:5300` or change it in the fixtures.
+
+It is assumed the powerdns instance has both the `example.com` and `in-addr.arpa` domains configured. If not, create them:
+
+    -- Create example.com
+    INSERT INTO domains (id, name, type) VALUES (1, 'example.com', 'master');
+    INSERT INTO records (domain_id, name, type, content) VALUES (1, 'example.com', 'PTR', 'ns1.example.com hostmaster.example.com. 0 3600 1800 1209600 3600');
+
+    -- Create in-addr.arpa
+    INSERT INTO domains (id, name, type) VALUES (2, 'in-addr.arpa', 'master');
+    INSERT INTO records (domain_id, name, type, content) VALUES (2, 'in-addr.arpa', 'PTR', 'ns1.example.com hostmaster.example.com. 0 3600 1800 1209600 3600');
+
+Then you need to install the required dependencies (dnspython, pytest and requests). Then run the tests:
+
+    py.test test/integration_tests.py
+
 ## Copyright
 
 Copyright (c) 2015 Ewoud Kohl van Wijngaarden
