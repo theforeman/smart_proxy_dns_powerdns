@@ -40,6 +40,8 @@ module Proxy::Dns::Powerdns
         @content = options[:value]
       end
 
+      options[:ttl] = options[:ttl].to_i
+
       super(options)
     end
 
@@ -83,7 +85,6 @@ module Proxy::Dns::Powerdns
     def create_record domain_id, name, ttl, content, type
       name = mysql_connection.escape(name)
       content = mysql_connection.escape(content)
-      ttl = mysql_connection.escape(ttl)
       type = mysql_connection.escape(type)
       mysql_connection.query("INSERT INTO records (domain_id, name, ttl, content, type) VALUES (#{domain_id}, '#{name}', #{ttl}, '#{content}', '#{type}')")
       # TODO: run rectify-zone
