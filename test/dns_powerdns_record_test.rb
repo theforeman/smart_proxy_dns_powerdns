@@ -3,7 +3,7 @@ require 'test_helper'
 require 'smart_proxy_dns_powerdns/dns_powerdns_main'
 
 class DnsPowerdnsRecordTest < Test::Unit::TestCase
-  # Test that a missing :example_setting throws an error
+  # Test that a missing :powerdns_mysql_hostname throws an error
   def test_initialize_without_settings
     assert_raise(RuntimeError) do
       klass.new(settings.delete_if { |k,v| k == :powerdns_mysql_hostname })
