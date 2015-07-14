@@ -25,9 +25,8 @@ class DnsPowerdnsRecordTest < Test::Unit::TestCase
 
     instance = klass.new(settings)
 
-    instance.expects(:domain_id).returns(1)
-    instance.expects(:dns_find).with('test.example.com').returns(false)
-    instance.expects(:domain_id).returns(1)
+    instance.expects(:domain).returns({'id' => 1})
+    instance.expects(:dns_find).with(1, 'test.example.com').returns(false)
     instance.expects(:create_record).with(1, 'test.example.com', 84600, '10.1.1.1', 'A').returns(true)
 
     assert instance.create
@@ -39,8 +38,8 @@ class DnsPowerdnsRecordTest < Test::Unit::TestCase
 
     instance = klass.new(settings)
 
-    instance.expects(:domain_id).returns(1)
-    instance.expects(:dns_find).with('test.example.com').returns('192.168.1.1')
+    instance.expects(:domain).returns({'id' => 1})
+    instance.expects(:dns_find).with(1, 'test.example.com').returns('192.168.1.1')
 
     assert_raise(Proxy::Dns::Collision) { instance.create }
   end
@@ -51,9 +50,8 @@ class DnsPowerdnsRecordTest < Test::Unit::TestCase
 
     instance = klass.new(settings.merge(:type => 'PTR'))
 
-    instance.expects(:domain_id).returns(1)
-    instance.expects(:dns_find).with('1.1.1.10.in-addr.arpa').returns(false)
-    instance.expects(:domain_id).returns(1)
+    instance.expects(:domain).returns({'id' => 1})
+    instance.expects(:dns_find).with(1, '1.1.1.10.in-addr.arpa').returns(false)
     instance.expects(:create_record).with(1, '1.1.1.10.in-addr.arpa', 84600, 'test.example.com', 'PTR').returns(true)
 
     assert instance.create
@@ -65,8 +63,8 @@ class DnsPowerdnsRecordTest < Test::Unit::TestCase
 
     instance = klass.new(settings.merge(:type => 'PTR'))
 
-    instance.expects(:domain_id).returns(1)
-    instance.expects(:dns_find).with('1.1.1.10.in-addr.arpa').returns('test2.example.com')
+    instance.expects(:domain).returns({'id' => 1})
+    instance.expects(:dns_find).with(1, '1.1.1.10.in-addr.arpa').returns('test2.example.com')
 
     assert_raise(Proxy::Dns::Collision) { instance.create }
   end
@@ -77,6 +75,7 @@ class DnsPowerdnsRecordTest < Test::Unit::TestCase
 
     instance = klass.new(settings)
 
+    instance.expects(:domain).returns({'id' => 1})
     instance.expects(:delete_record).with('test.example.com', 'A').returns(true)
 
     assert instance.remove
@@ -88,6 +87,7 @@ class DnsPowerdnsRecordTest < Test::Unit::TestCase
 
     instance = klass.new(settings.merge(:type => 'PTR'))
 
+    instance.expects(:domain).returns({'id' => 1})
     instance.expects(:delete_record).with('1.1.1.10.in-addr.arpa', 'PTR').returns(true)
 
     assert instance.remove

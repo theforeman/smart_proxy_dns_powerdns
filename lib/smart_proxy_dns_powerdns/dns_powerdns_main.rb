@@ -48,33 +48,37 @@ module Proxy::Dns::Powerdns
     end
 
     def create
-      raise Proxy::Dns::Error, "Unable to determine zone. Zone must exist in PowerDNS." unless domain_id
+      domain_row = domain
+      raise Proxy::Dns::Error, "Unable to determine zone. Zone must exist in PowerDNS." unless domain_row
 
-      if ip = dns_find(@name)
+      if ip = dns_find(domain_row['id'], @name)
         raise Proxy::Dns::Collision, "#{@name} is already in use by #{ip}"
       end
 
-      create_record(domain_id, @name, @ttl, @content, @type)
+      create_record(domain_row['id'], @name, @ttl, @content, @type)
     end
 
     def remove
+      domain_row = domain
+      raise Proxy::Dns::Error, "Unable to determine zone. Zone must exist in PowerDNS." unless domain_row
+
       delete_record(@name, @type)
     end
 
     private
-    def domain_id
-      id = nil
+    def domain
+      domain = nil
 
       name = mysql_connection.escape(@name)
       mysql_connection.query("SELECT LENGTH(name) domain_length, id FROM domains WHERE '#{name}' LIKE CONCAT('%%.', name) ORDER BY domain_length DESC LIMIT 1").each do |row|
-        id = row["id"]
+        domain = row
       end
 
-      id
+      domain
     end
 
     private
-    def dns_find key
+    def dns_find domain_id, key
       value = nil
       key = mysql_connection.escape(key)
       mysql_connection.query("SELECT content FROM records WHERE domain_id=#{domain_id} AND name = '#{key}' LIMIT 1").each do |row|
