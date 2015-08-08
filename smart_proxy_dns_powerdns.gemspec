@@ -8,7 +8,7 @@ Gem::Specification.new do |s|
   s.license     = 'GPLv3'
   s.authors     = ['Ewoud Kohl van Wijngaarden']
   s.email       = ['ewoud@kohlvanwijngaarden.nl']
-  s.homepage    = 'https://github.com/ekohl/smart_proxy_dns_powerdns'
+  s.homepage    = 'https://github.com/theforeman/smart_proxy_dns_powerdns'
 
   s.summary     = "PowerDNS DNS provider plugin for Foreman's smart proxy"
   s.description = "PowerDNS DNS provider plugin for Foreman's smart proxy"
