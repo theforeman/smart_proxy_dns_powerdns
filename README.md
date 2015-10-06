@@ -9,6 +9,9 @@ for how to install Smart Proxy plugins
 
 This plugin is compatible with Smart Proxy 1.10 or higher.
 
+When installing using "gem", make sure to install the bundle file:
+echo "gem 'smart_proxy_dns_powerdns'" > /usr/share/foreman-proxy/bundler.d/dns_powerdns.rb
+
 ## Configuration
 
 To enable this DNS provider, edit `/etc/foreman-proxy/settings.d/dns.yml` and set:
