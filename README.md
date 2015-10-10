@@ -42,18 +42,16 @@ Fork and send a Pull Request. Thanks!
 
 ### Running the integration tests
 
-Since I'm mostly a python developer, I've written the integration tests in python.
-
-First you need to run the smart proxy on `http://localhost:8000` and a powerdns instance on `127.0.0.1:5300` or change it in the fixtures.
+First you need to run the smart proxy on `http://localhost:8000` and a powerdns instance on `127.0.0.1:5300`.
 
 It is assumed the powerdns instance has both the `example.com` and `in-addr.arpa` domains configured. If not, create them:
 
     INSERT INTO domains (name, type) VALUES ('example.com', 'master'), ('in-addr.arpa', 'master');
     INSERT INTO records (domain_id, name, type, content) SELECT id domain_id, name, 'SOA', 'ns1.example.com hostmaster.example.com. 0 3600 1800 1209600 3600' FROM domains WHERE NOT EXISTS (SELECT 1 FROM records WHERE records.domain_id=domains.id AND records.name=domains.name AND type='SOA');
 
-Then you need to install the required dependencies (dnspython, pytest and requests). Then run the tests:
+Then run the tests:
 
-    py.test test/integration_tests.py
+    bundle exec rake test:integration
 
 ## Copyright
 
