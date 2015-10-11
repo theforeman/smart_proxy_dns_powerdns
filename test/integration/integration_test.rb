@@ -11,21 +11,21 @@ class DnsPowerdnsIntegrationTest < Test::Unit::TestCase
     uri = URI(smart_proxy_url)
 
     Net::HTTP.start(uri.host, uri.port) do |http|
-      request = Net::HTTP::Post.new(URI(smart_proxy_url + 'dns/'))
+      request = Net::HTTP::Post.new(smart_proxy_url + 'dns/')
       request.form_data = data
       response = http.request request
       assert_equal(200, response.code.to_i)
 
-      addresses = resolver.getresources(data['fqdn'], Resolv::DNS::Resource::IN::A)
-      assert_equal([Resolv::DNS::Resource::IN::A.new(Resolv::IPv4.create(data['value']))], addresses)
+      addresses = resolver.getaddresses(data['fqdn'])
+      assert_equal([Resolv::IPv4.create(data['value'])], addresses, "#{data['fqdn']} should resolve to #{data['value']}")
 
-      request = Net::HTTP::Delete.new(URI(smart_proxy_url + 'dns/' + data['fqdn']))
+      request = Net::HTTP::Delete.new(smart_proxy_url + 'dns/' + data['fqdn'])
       response = http.request request
       assert_equal(200, response.code.to_i)
 
       assert(purge_cache data['fqdn'])
 
-      addresses = resolver.getresources(data['fqdn'], Resolv::DNS::Resource::IN::A)
+      addresses = resolver.getaddresses(data['fqdn'])
       assert_equal([], addresses)
     end
   end
@@ -36,23 +36,21 @@ class DnsPowerdnsIntegrationTest < Test::Unit::TestCase
     uri = URI(smart_proxy_url)
 
     Net::HTTP.start(uri.host, uri.port) do |http|
-      request = Net::HTTP::Post.new(URI(smart_proxy_url + 'dns/'))
+      request = Net::HTTP::Post.new(smart_proxy_url + 'dns/')
       request.form_data = data
       response = http.request request
       assert_equal(200, response.code.to_i)
 
-      name = Resolv::IPv4.create(data['value']).to_name.to_s
+      addresses = resolver.getnames(data['value'])
+      assert_equal([Resolv::DNS::Name.create(data['fqdn'] + '.')], addresses, "#{data['value']} should reverse to #{data['fqdn']}")
 
-      addresses = resolver.getresources(name, Resolv::DNS::Resource::IN::PTR)
-      assert_equal([Resolv::DNS::Resource::IN::PTR.new(Resolv::DNS::Name.create(data['fqdn'] + '.'))], addresses, "#{data['value']} should reverse to #{data['fqdn']}")
-
-      request = Net::HTTP::Delete.new(URI(smart_proxy_url + 'dns/' + data['fqdn']))
+      request = Net::HTTP::Delete.new(smart_proxy_url + 'dns/' + data['fqdn'])
       response = http.request request
       assert_equal(200, response.code.to_i)
 
-      assert(purge_cache name)
+      assert(purge_cache Resolv::IPv4.create(data['value']).to_name.to_s)
 
-      addresses = resolver.getresources(data['fqdn'], Resolv::DNS::Resource::IN::PTR)
+      addresses = resolver.getnames(data['value'])
       assert_equal([], addresses)
     end
   end
