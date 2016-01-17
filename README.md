@@ -7,11 +7,15 @@ This plugin adds a new DNS provider for managing records in PowerDNS.
 See [How_to_Install_a_Smart-Proxy_Plugin](http://projects.theforeman.org/projects/foreman/wiki/How_to_Install_a_Smart-Proxy_Plugin)
 for how to install Smart Proxy plugins
 
-This plugin is compatible with Smart Proxy 1.10 or higher.
+This plugin is compatible with Smart Proxy 1.11 or higher.
 
 When installing using "gem", make sure to install the bundle file:
 
 	echo "gem 'smart_proxy_dns_powerdns'" > /usr/share/foreman-proxy/bundler.d/dns_powerdns.rb
+
+## Upgrading
+
+Per version 0.2.0 the backend is a required parameter.
 
 ## Configuration
 
@@ -19,8 +23,13 @@ To enable this DNS provider, edit `/etc/foreman-proxy/settings.d/dns.yml` and se
 
     :use_provider: dns_powerdns
 
-Configuration options for this plugin are in `/etc/foreman-proxy/settings.d/dns_powerdns.yml` and include:
+Configuration options for this plugin are in `/etc/foreman-proxy/settings.d/dns_powerdns.yml`.
 
+### MySQL
+
+To use MySQL, set the following parameters:
+
+    :powerdns_backend: 'mysql'
     :powerdns_mysql_hostname: 'localhost'
     :powerdns_mysql_username: 'powerdns'
     :powerdns_mysql_password: ''
