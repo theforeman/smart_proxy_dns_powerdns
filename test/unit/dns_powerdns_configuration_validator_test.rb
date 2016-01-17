@@ -55,4 +55,24 @@ class DnsPowerdnsConfigurationValidatorTest < Test::Unit::TestCase
       @config_validator.validate_settings!(settings)
     end
   end
+
+  def test_initialize_postgresql_without_settings
+    settings = OpenStruct.new(:dns_provider => 'powerdns', :powerdns_backend => 'postgresql')
+
+    assert_raise Proxy::Error::ConfigurationError do
+      @config_validator.validate_settings!(settings)
+    end
+  end
+
+  def test_initialize_postgresql_with_settings
+    settings = OpenStruct.new(
+      :dns_provider => 'powerdns',
+      :powerdns_backend => 'postgresql',
+      :powerdns_postgresql_connection => 'dbname=powerdns'
+    )
+
+    assert_nothing_raised do
+      @config_validator.validate_settings!(settings)
+    end
+  end
 end

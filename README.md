@@ -35,6 +35,13 @@ To use MySQL, set the following parameters:
     :powerdns_mysql_password: ''
     :powerdns_mysql_database: 'powerdns'
 
+### PostgreSQL
+
+To use PostgreSQL, set the following parameters:
+
+    :powerdns_backend: 'postgresql'
+    :powerdns_postgresql_connection: 'host=localhost user=powerdns password=mypassword dbname=powerdns'
+
 ### DNSSEC
 
 In case you've enabled DNSSEC (as you should), a rectify-zone is required after every zone change. The pdnssec command is configurable:
