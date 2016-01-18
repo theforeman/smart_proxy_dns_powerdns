@@ -41,14 +41,16 @@ class DnsPowerdnsIntegrationTest < Test::Unit::TestCase
       response = http.request request
       assert_equal(200, response.code.to_i)
 
+      name = Resolv::IPv4.create(data['value']).to_name.to_s
+
       addresses = resolver.getnames(data['value'])
       assert_equal([Resolv::DNS::Name.create(data['fqdn'] + '.')], addresses, "#{data['value']} should reverse to #{data['fqdn']}")
 
-      request = Net::HTTP::Delete.new(smart_proxy_url + 'dns/' + data['fqdn'])
+      request = Net::HTTP::Delete.new(smart_proxy_url + 'dns/' + name)
       response = http.request request
       assert_equal(200, response.code.to_i)
 
-      assert(purge_cache Resolv::IPv4.create(data['value']).to_name.to_s)
+      assert(purge_cache name)
 
       addresses = resolver.getnames(data['value'])
       assert_equal([], addresses)
