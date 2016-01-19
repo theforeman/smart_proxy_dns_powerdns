@@ -6,5 +6,5 @@ group :development do
 end
 
 group :test do
-  gem 'test-unit'
+  gem 'test-unit' unless RUBY_VERSION.start_with? '1.8'
 end
