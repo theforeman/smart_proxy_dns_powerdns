@@ -31,7 +31,7 @@ elif [ "$DB" = "pgsql" ] ; then
 	---
 	:powerdns_pdnssec: pdnssec $PDNS_ARGS
 	:powerdns_backend: postgresql
-	:powerdns_postgresql_connection: "user=$DB_USER dbname=$DB_NAME"
+	:powerdns_postgresql_connection: "user=$DB_USER dbname=$DB_NAME host=127.0.0.1"
 	EOF
 else
 	echo "Unknown database '$DB'"
