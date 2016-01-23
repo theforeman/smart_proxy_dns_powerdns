@@ -9,13 +9,11 @@ services:
   - mysql
   - postgresql
 sudo: required
-dist: trusty
 env:
   - PDNS_ARGS="--config-dir=/tmp" DB=mysql
   - PDNS_ARGS="--config-dir=/tmp" DB=pgsql
 before_script:
-  - curl https://repo.powerdns.com/CBC8B383-pub.asc | sudo apt-key add - && echo 'deb http://repo.powerdns.com/ubuntu trusty-auth-master main' | sudo tee -a /etc/apt/sources.list && sudo apt-get update
-  - sudo apt-get install -y pdns-server pdns-backend-mysql pdns-backend-pgsql
+  - wget https://downloads.powerdns.com/releases/deb/pdns-static_3.4.7-1_amd64.deb && sudo dpkg -i pdns-static_3.4.7-1_amd64.deb
   - ./travis/pdns.sh
   - ./travis/smart-proxy.sh
 cache: bundler
