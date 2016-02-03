@@ -13,8 +13,16 @@ class DnsPowerdnsIntegrationTest < Test::Unit::TestCase
     test_scenario(data, data['fqdn'], type, expected)
   end
 
-  def test_reverse_dns
+  def test_reverse_dns_v4
     data = {'fqdn' => fqdn, 'value' => IPAddr.new(ip).reverse, 'type' => 'PTR'}
+    type = Resolv::DNS::Resource::IN::PTR
+    expected = type.new(Resolv::DNS::Name.create(data['fqdn'] + '.'))
+
+    test_scenario(data, data['value'], type, expected)
+  end
+
+  def test_reverse_dns_v6
+    data = {'fqdn' => fqdn, 'value' => IPAddr.new(ipv6).reverse, 'type' => 'PTR'}
     type = Resolv::DNS::Resource::IN::PTR
     expected = type.new(Resolv::DNS::Name.create(data['fqdn'] + '.'))
 
@@ -59,6 +67,10 @@ class DnsPowerdnsIntegrationTest < Test::Unit::TestCase
 
   def ip
     IPAddr.new(rand(2 ** 32), Socket::AF_INET).to_s
+  end
+
+  def ipv6
+    IPAddr.new(rand(2 ** 128), Socket::AF_INET6).to_s
   end
 
   def purge_cache name

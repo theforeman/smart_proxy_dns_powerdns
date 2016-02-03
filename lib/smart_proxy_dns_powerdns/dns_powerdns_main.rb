@@ -39,8 +39,7 @@ module Proxy::Dns::Powerdns
       do_remove(fqdn, "A")
     end
 
-    def remove_ptr_record(ip)
-      name = ip # Note ip is already in-addr.arpa
+    def remove_ptr_record(name)
       do_remove(name, "PTR")
     end
 

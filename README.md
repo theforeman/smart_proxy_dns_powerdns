@@ -62,7 +62,7 @@ First you need to run the smart proxy on `http://localhost:8000` and a powerdns 
 
 It is assumed the powerdns instance has both the `example.com` and `in-addr.arpa` domains configured. If not, create them:
 
-    INSERT INTO domains (name, type) VALUES ('example.com', 'master'), ('in-addr.arpa', 'master');
+    INSERT INTO domains (name, type) VALUES ('example.com', 'master'), ('in-addr.arpa', 'master'), ('ip6.arpa', 'master');
     INSERT INTO records (domain_id, name, type, content) SELECT id domain_id, name, 'SOA', 'ns1.example.com hostmaster.example.com. 0 3600 1800 1209600 3600' FROM domains WHERE NOT EXISTS (SELECT 1 FROM records WHERE records.domain_id=domains.id AND records.name=domains.name AND type='SOA');
 
 Then run the tests:
