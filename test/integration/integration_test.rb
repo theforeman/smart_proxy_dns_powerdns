@@ -5,10 +5,18 @@ require 'net/http'
 
 class DnsPowerdnsIntegrationTest < Test::Unit::TestCase
 
-  def test_forward_dns
+  def test_forward_dns_v4
     data = {'fqdn' => fqdn, 'value' => ip, 'type' => 'A'}
     type = Resolv::DNS::Resource::IN::A
     expected = type.new(Resolv::IPv4.create(data['value']))
+
+    test_scenario(data, data['fqdn'], type, expected)
+  end
+
+  def test_forward_dns_v6
+    data = {'fqdn' => fqdn, 'value' => ipv6, 'type' => 'AAAA'}
+    type = Resolv::DNS::Resource::IN::AAAA
+    expected = type.new(Resolv::IPv6.create(data['value']))
 
     test_scenario(data, data['fqdn'], type, expected)
   end
@@ -42,7 +50,7 @@ class DnsPowerdnsIntegrationTest < Test::Unit::TestCase
 
       assert_equal([expected], resolver.getresources(name, type))
 
-      request = Net::HTTP::Delete.new(smart_proxy_url + 'dns/' + name)
+      request = Net::HTTP::Delete.new("#{smart_proxy_url}dns/#{name}/#{type.to_s.split("::").last}")
       response = http.request request
       assert_equal(200, response.code.to_i)
 

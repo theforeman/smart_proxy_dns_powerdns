@@ -25,6 +25,17 @@ module Proxy::Dns::Powerdns
       end
     end
 
+    def create_aaaa_record(fqdn, ip)
+      case aaaa_record_conflicts(fqdn, ip)
+      when 1
+        raise(Proxy::Dns::Collision, "'#{fqdn} 'is already in use")
+      when 0 then
+        return nil
+      else
+        do_create(fqdn, ip, "AAAA")
+      end
+    end
+
     def create_ptr_record(fqdn, ptr)
       case ptr_record_conflicts(fqdn, ptr_to_ip(ptr))
       when 1
@@ -43,6 +54,10 @@ module Proxy::Dns::Powerdns
 
     def remove_a_record(fqdn)
       do_remove(fqdn, "A")
+    end
+
+    def remove_aaaa_record(fqdn)
+      do_remove(fqdn, "AAAA")
     end
 
     def remove_ptr_record(ptr)
