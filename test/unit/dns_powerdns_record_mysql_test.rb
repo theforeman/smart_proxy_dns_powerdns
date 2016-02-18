@@ -20,6 +20,55 @@ class DnsPowerdnsBackendMysqlTest < Test::Unit::TestCase
     assert_equal 'db_pdns', provider.database
   end
 
+  def test_get_zone_with_existing_zone
+    instance = klass.new
+
+    connection = mock()
+    instance.stubs(:connection).returns(connection)
+    connection.expects(:escape).with('test.example.com').returns('test.example.com')
+    connection.expects(:query).with("SELECT LENGTH(name) domain_length, id, name FROM domains WHERE 'test.example.com' LIKE CONCAT('%%.', name) ORDER BY domain_length DESC LIMIT 1").returns([{'id' => 1, 'name' => 'example.com'}])
+
+    assert_equal(instance.get_zone('test.example.com'), {'id' => 1, 'name' => 'example.com'})
+  end
+
+  def test_get_zone_without_existing_zone
+    instance = klass.new
+
+    connection = mock()
+    instance.stubs(:connection).returns(connection)
+    connection.expects(:escape).with('test.example.com').returns('test.example.com')
+    connection.expects(:query).with("SELECT LENGTH(name) domain_length, id, name FROM domains WHERE 'test.example.com' LIKE CONCAT('%%.', name) ORDER BY domain_length DESC LIMIT 1").returns([])
+
+    assert_raise(Proxy::Dns::Error) { instance.get_zone('test.example.com') }
+  end
+
+  def test_create_record
+    instance = klass.new
+
+    connection = mock()
+    instance.stubs(:connection).returns(connection)
+    connection.expects(:escape).with('test.example.com').returns('test.example.com')
+    connection.expects(:escape).with('A').returns('A')
+    connection.expects(:escape).with('10.1.1.1').returns('10.1.1.1')
+    connection.expects(:query).with("INSERT INTO records (domain_id, name, ttl, content, type) VALUES (1, 'test.example.com', 86400, '10.1.1.1', 'A')")
+    connection.expects(:affected_rows).returns(1)
+
+    assert instance.create_record(1, 'test.example.com', 'A', '10.1.1.1')
+  end
+
+  def test_delete_record
+    instance = klass.new
+
+    connection = mock()
+    instance.stubs(:connection).returns(connection)
+    connection.expects(:escape).with('test.example.com').returns('test.example.com')
+    connection.expects(:escape).with('A').returns('A')
+    connection.expects(:query).with("DELETE FROM records WHERE domain_id=1 AND name='test.example.com' AND type='A'")
+    connection.expects(:affected_rows).returns(1)
+
+    assert instance.delete_record(1, 'test.example.com', 'A')
+  end
+
   private
 
   def klass

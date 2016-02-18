@@ -75,6 +75,26 @@ class DnsPowerdnsRecordTest < Test::Unit::TestCase
     assert instance.remove_ptr_record(reverse_ip)
   end
 
+  def test_do_create
+    instance = klass.new
+
+    instance.expects(:get_zone).with('test.example.com').returns({'id' => 1, 'name' => 'example.com'})
+    instance.expects(:create_record).with(1, 'test.example.com', 'A', '10.1.1.1').returns(true)
+    instance.expects(:rectify_zone).with('example.com').returns(true)
+
+    assert instance.do_create('test.example.com', '10.1.1.1', 'A')
+  end
+
+  def test_do_remove
+    instance = klass.new
+
+    instance.expects(:get_zone).with('test.example.com').returns({'id' => 1, 'name' => 'example.com'})
+    instance.expects(:delete_record).with(1, 'test.example.com', 'A').returns(true)
+    instance.expects(:rectify_zone).with('example.com').returns(true)
+
+    assert instance.do_remove('test.example.com', 'A')
+  end
+
   private
 
   def klass

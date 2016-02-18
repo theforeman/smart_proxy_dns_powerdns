@@ -31,19 +31,19 @@ module Proxy::Dns::Powerdns::Backend
       domain
     end
 
-    def create_record domain_id, name, ttl, content, type
+    def create_record domain_id, name, type, content
       name = connection.escape(name)
       content = connection.escape(content)
       type = connection.escape(type)
       connection.query("INSERT INTO records (domain_id, name, ttl, content, type) VALUES (#{domain_id}, '#{name}', #{ttl.to_i}, '#{content}', '#{type}')")
-      true
+      connection.affected_rows == 1
     end
 
     def delete_record domain_id, name, type
       name = connection.escape(name)
       type = connection.escape(type)
       connection.query("DELETE FROM records WHERE domain_id=#{domain_id} AND name='#{name}' AND type='#{type}'")
-      true
+      connection.affected_rows == 1
     end
   end
 end
