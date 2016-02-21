@@ -71,7 +71,7 @@ Then run the tests:
 
 ## Copyright
 
-Copyright (c) 2015 Ewoud Kohl van Wijngaarden
+Copyright (c) 2015 - 2016 Ewoud Kohl van Wijngaarden
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
