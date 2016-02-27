@@ -36,21 +36,21 @@ class DnsPowerdnsRecordTest < Test::Unit::TestCase
   def test_create_ptr
     instance = klass.new
 
-    instance.expects(:dns_find).with('10.1.1.1').returns(false)
+    instance.expects(:dns_find).with('1.1.1.10.in-addr.arpa').returns(false)
     instance.expects(:get_zone).with('1.1.1.10.in-addr.arpa').returns({'id' => 1, 'name' => '1.1.10.in-addr.arpa'})
     instance.expects(:create_record).with(1, '1.1.1.10.in-addr.arpa', 'PTR', 'test.example.com').returns(true)
     instance.expects(:rectify_zone).with('1.1.10.in-addr.arpa').returns(true)
 
-    assert instance.create_ptr_record(fqdn, ip)
+    assert instance.create_ptr_record(fqdn, reverse_ip)
   end
 
   # Test PTR record creation fails if the record exists
   def test_create_ptr_conflict
     instance = klass.new
 
-    instance.expects(:dns_find).with('10.1.1.1').returns('test2.example.com')
+    instance.expects(:dns_find).with('1.1.1.10.in-addr.arpa').returns('test2.example.com')
 
-    assert_raise(Proxy::Dns::Collision) { instance.create_ptr_record(fqdn, ip) }
+    assert_raise(Proxy::Dns::Collision) { instance.create_ptr_record(fqdn, reverse_ip) }
   end
 
   # Test A record removal

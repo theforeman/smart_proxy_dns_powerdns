@@ -22,13 +22,12 @@ module Proxy::Dns::Powerdns
       do_create(fqdn, ip, "A")
     end
 
-    def create_ptr_record(fqdn, ip)
-      if found = dns_find(ip)
-        raise Proxy::Dns::Collision, "#{ip} is already in use by #{found}" unless found == fqdn
+    def create_ptr_record(fqdn, value)
+      if found = dns_find(value)
+        raise Proxy::Dns::Collision, "#{value} is already in use by #{found}" unless found == fqdn
       end
 
-      name = IPAddr.new(ip).reverse
-      do_create(name, fqdn, "PTR")
+      do_create(value, fqdn, "PTR")
     end
 
     def do_create(name, value, type)
