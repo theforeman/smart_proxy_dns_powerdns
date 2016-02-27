@@ -15,19 +15,25 @@ module Proxy::Dns::Powerdns
     end
 
     def create_a_record(fqdn, ip)
-      if found = dns_find(fqdn)
-        raise Proxy::Dns::Collision, "#{fqdn} is already in use by #{ip}" unless found == ip
+      case a_record_conflicts(fqdn, ip)
+      when 1
+        raise(Proxy::Dns::Collision, "'#{fqdn} 'is already in use")
+      when 0 then
+        return nil
+      else
+        do_create(fqdn, ip, "A")
       end
-
-      do_create(fqdn, ip, "A")
     end
 
-    def create_ptr_record(fqdn, value)
-      if found = dns_find(value)
-        raise Proxy::Dns::Collision, "#{value} is already in use by #{found}" unless found == fqdn
+    def create_ptr_record(fqdn, ptr)
+      case ptr_record_conflicts(fqdn, ptr_to_ip(ptr))
+      when 1
+        raise(Proxy::Dns::Collision, "'#{fqdn} 'is already in use")
+      when 0 then
+        return nil
+      else
+        do_create(ptr, fqdn, "PTR")
       end
-
-      do_create(value, fqdn, "PTR")
     end
 
     def do_create(name, value, type)
@@ -39,8 +45,8 @@ module Proxy::Dns::Powerdns
       do_remove(fqdn, "A")
     end
 
-    def remove_ptr_record(name)
-      do_remove(name, "PTR")
+    def remove_ptr_record(ptr)
+      do_remove(ptr, "PTR")
     end
 
     def do_remove(name, type)
