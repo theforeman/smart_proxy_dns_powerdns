@@ -42,9 +42,20 @@ To use PostgreSQL, set the following parameters:
     :powerdns_backend: 'postgresql'
     :powerdns_postgresql_connection: 'host=localhost user=powerdns password=mypassword dbname=powerdns'
 
+
+### REST
+
+To use the REST backend, set the following parameters:
+
+    :powerdns_backend: 'rest'
+    :powerdns_rest_url: 'http://localhost:8081/api/v1/servers/localhost'
+    :powerdns_rest_api_key: 'apikey'
+
+Note the API is only tested with 4.x. Older versions may work, but they can also break.
+
 ### DNSSEC
 
-In case you've enabled DNSSEC (as you should), a rectify-zone is required after every zone change. The pdnssec command is configurable:
+In case you've enabled DNSSEC (as you should), all database backends require a rectify-zone after every zone change. The REST backend ignores this setting. The pdnssec command is configurable:
 
     :powerdns_pdnssec: 'pdnssec'
 

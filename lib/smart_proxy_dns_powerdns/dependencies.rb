@@ -8,6 +8,9 @@ class Proxy::Dns::DependencyInjection::Dependencies
   when 'postgresql'
     require 'smart_proxy_dns_powerdns/backend/postgresql'
     dependency :dns_provider, Proxy::Dns::Powerdns::Backend::Postgresql
+  when 'rest'
+    require 'smart_proxy_dns_powerdns/backend/rest'
+    dependency :dns_provider, Proxy::Dns::Powerdns::Backend::Rest
   when 'dummy'
     require 'smart_proxy_dns_powerdns/backend/dummy'
     dependency :dns_provider, Proxy::Dns::Powerdns::Backend::Dummy

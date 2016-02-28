@@ -3,13 +3,15 @@ require 'smart_proxy_dns_powerdns/dns_powerdns_plugin'
 module Proxy::Dns::Powerdns
   class ConfigurationValidator
     def validate_settings!(settings)
-      validate_choice(settings, :powerdns_backend, ['mysql', 'postgresql', 'dummy'])
+      validate_choice(settings, :powerdns_backend, ['mysql', 'postgresql', 'rest', 'dummy'])
 
       case settings.powerdns_backend
       when 'mysql'
         validate_presence(settings, [:powerdns_mysql_username, :powerdns_mysql_password, :powerdns_mysql_database])
       when 'postgresql'
         validate_presence(settings, [:powerdns_postgresql_connection])
+      when 'rest'
+        validate_presence(settings, [:powerdns_rest_url, :powerdns_rest_api_key])
       end
     end
 

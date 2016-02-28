@@ -11,6 +11,7 @@ end
 
 group :test do
   gem 'test-unit' unless RUBY_VERSION.start_with? '1.8'
+  gem 'webmock'
 
   if RUBY_VERSION.start_with? '1.'
     if RUBY_VERSION.start_with? '1.8'
