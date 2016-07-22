@@ -36,6 +36,17 @@ module Proxy::Dns::Powerdns
       end
     end
 
+    def create_cname_record(fqdn, target)
+      case cname_record_conflicts(fqdn, target)
+      when 1 then
+        raise(Proxy::Dns::Collision, "'#{fqdn} 'is already in use")
+      when 0 then
+        return nil
+      else
+        do_create(fqdn, target, "CNAME")
+      end
+    end
+
     def create_ptr_record(fqdn, ptr)
       case ptr_record_conflicts(fqdn, ptr_to_ip(ptr))
       when 1
@@ -61,6 +72,10 @@ module Proxy::Dns::Powerdns
 
     def remove_aaaa_record(fqdn)
       do_remove(fqdn, "AAAA")
+    end
+
+    def remove_cname_record(fqdn)
+      do_remove(fqdn, "CNAME")
     end
 
     def remove_ptr_record(ptr)

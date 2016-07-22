@@ -37,6 +37,14 @@ class DnsPowerdnsIntegrationTest < Test::Unit::TestCase
     test_scenario(data, data['value'], type, expected)
   end
 
+  def test_cname
+    data = {'fqdn' => fqdn, 'value' => 'something.example.com', 'type' => 'CNAME'}
+    type = Resolv::DNS::Resource::IN::CNAME
+    expected = type.new(Resolv::DNS::Name.create(data['value'] + '.'))
+
+    test_scenario(data, data['fqdn'], type, expected)
+  end
+
   private
 
   def test_scenario(data, name, type, expected)

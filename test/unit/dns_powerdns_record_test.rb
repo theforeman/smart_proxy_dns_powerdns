@@ -71,6 +71,36 @@ class DnsPowerdnsRecordTest < Test::Unit::TestCase
     assert_raise(Proxy::Dns::Collision) { instance.create_aaaa_record(fqdn, ipv6) }
   end
 
+  # Test CNAME record creation
+  def test_create_cname
+    instance = klass.new
+
+    instance.expects(:cname_record_conflicts).with('test.example.com', 'something.example.com').returns(-1)
+    instance.expects(:get_zone).with('test.example.com').returns({'id' => 1, 'name' => 'example.com'})
+    instance.expects(:create_record).with(1, 'test.example.com', 'CNAME', 'something.example.com').returns(true)
+    instance.expects(:rectify_zone).with('example.com').returns(true)
+
+    assert instance.create_cname_record(fqdn, 'something.example.com')
+  end
+
+  # Test CNAME record creation does nothing if the same record exists
+  def test_create_cname_duplicate
+    instance = klass.new
+
+    instance.expects(:cname_record_conflicts).with('test.example.com', 'something.example.com').returns(0)
+
+    assert_equal nil, instance.create_cname_record(fqdn, 'something.example.com')
+  end
+
+  # Test CNAME record creation fails if the record exists
+  def test_create_cname_conflict
+    instance = klass.new
+
+    instance.expects(:cname_record_conflicts).with('test.example.com', 'something.example.com').returns(1)
+
+    assert_raise(Proxy::Dns::Collision) { instance.create_cname_record(fqdn, 'something.example.com') }
+  end
+
   # Test PTR record creation
   def test_create_ptr
     instance = klass.new

@@ -39,7 +39,7 @@ module Proxy::Dns::Powerdns::Backend
     end
 
     def create_record domain_id, name, type, content
-      content += '.' if type == 'PTR'
+      content += '.' if ['PTR', 'CNAME'].include?(type)
       rrset = {
         :name => name + '.',
         :type => type,
