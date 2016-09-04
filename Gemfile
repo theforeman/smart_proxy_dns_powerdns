@@ -11,4 +11,12 @@ end
 
 group :test do
   gem 'test-unit' unless RUBY_VERSION.start_with? '1.8'
+
+  if RUBY_VERSION.start_with? '1.'
+    if RUBY_VERSION.start_with? '1.8'
+      gem 'rake', '< 11'
+    end
+    gem 'json', '~> 1.0'
+    gem 'json_pure', '~> 1.0'
+  end
 end
