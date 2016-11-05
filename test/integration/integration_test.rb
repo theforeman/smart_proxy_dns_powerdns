@@ -48,6 +48,8 @@ class DnsPowerdnsIntegrationTest < Test::Unit::TestCase
       response = http.request request
       assert_equal(200, response.code.to_i)
 
+      assert(purge_cache name)
+
       assert_equal([expected], resolver.getresources(name, type))
 
       request = Net::HTTP::Delete.new("#{smart_proxy_url}dns/#{name}/#{type.to_s.split("::").last}")
@@ -61,7 +63,7 @@ class DnsPowerdnsIntegrationTest < Test::Unit::TestCase
   end
 
   def resolver
-    Resolv::DNS.new(:nameserver_port => [['127.0.0.1', 5300]])
+    Resolv::DNS.new(:nameserver_port => [['127.0.0.1', 53]])
   end
 
   def smart_proxy_url
@@ -83,6 +85,8 @@ class DnsPowerdnsIntegrationTest < Test::Unit::TestCase
 
   def purge_cache name
     %x{#{ENV['PDNS_CONTROL'] || "pdns_control"} purge "#{name}"}
-    $? == 0
+    # Default pdns packet cache is 60 seconds, if purging failed we wait for it
+    sleep 60 unless $? == 0
+    true
   end
 end
