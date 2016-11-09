@@ -84,7 +84,7 @@ class DnsPowerdnsIntegrationTest < Test::Unit::TestCase
   end
 
   def purge_cache name
-    %x{#{ENV['PDNS_CONTROL'] || "pdns_control"} purge "#{name}"}
+    %x{#{ENV['PDNS_CONTROL'] || "pdns_control #{ENV['PDNS_ARGS']}"} purge "#{name}"}
     # Default pdns packet cache is 60 seconds, if purging failed we wait for it
     sleep 60 unless $? == 0
     true

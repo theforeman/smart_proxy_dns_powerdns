@@ -7,7 +7,7 @@ module Proxy::Dns::Powerdns
 
       case settings.powerdns_backend
       when 'mysql'
-        validate_presence(settings, [:powerdns_mysql_username, :powerdns_mysql_password, :powerdns_mysql_database])
+        validate_presence(settings, [:powerdns_mysql_username, :powerdns_mysql_database])
       when 'postgresql'
         validate_presence(settings, [:powerdns_postgresql_connection])
       when 'rest'
