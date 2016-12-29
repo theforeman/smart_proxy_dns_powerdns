@@ -5,7 +5,7 @@ Gem::Specification.new do |s|
   s.name        = 'smart_proxy_dns_powerdns'
   s.version     = Proxy::Dns::Powerdns::VERSION
   s.date        = Date.today.to_s
-  s.license     = 'GPLv3'
+  s.license     = 'GPL-3.0'
   s.authors     = ['Ewoud Kohl van Wijngaarden']
   s.email       = ['ewoud@kohlvanwijngaarden.nl']
   s.homepage    = 'https://github.com/theforeman/smart_proxy_dns_powerdns'
