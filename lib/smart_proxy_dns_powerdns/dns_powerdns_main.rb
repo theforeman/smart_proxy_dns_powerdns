@@ -69,8 +69,8 @@ module Proxy::Dns::Powerdns
 
     def do_remove(name, type)
       zone = get_zone(name)
-      unless delete_record(zone['id'], name, type) and rectify_zone(zone['name'])
-        raise Proxy::Dns::Error.new("Failed to remove record #{name} #{type}")
+      if delete_record(zone['id'], name, type)
+        raise Proxy::Dns::Error.new("Failed to remove record #{name} #{type}") unless rectify_zone(zone['name'])
       end
       true
     end
