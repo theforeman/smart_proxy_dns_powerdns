@@ -22,6 +22,7 @@ When installing using "gem", make sure to install the bundle file:
 ### 0.3.0
 
 * The minimum Smart Proxy version is now 1.13
+* The REST backend is now the preferred backend. Users are encouraged to use it.
 
 ### 0.2.0
 
@@ -34,6 +35,16 @@ To enable this DNS provider, edit `/etc/foreman-proxy/settings.d/dns.yml` and se
     :use_provider: dns_powerdns
 
 Configuration options for this plugin are in `/etc/foreman-proxy/settings.d/dns_powerdns.yml`.
+
+### REST
+
+To use the REST backend, set the following parameters:
+
+    :powerdns_backend: 'rest'
+    :powerdns_rest_url: 'http://localhost:8081/api/v1/servers/localhost'
+    :powerdns_rest_api_key: 'apikey'
+
+Note the API is only tested with 4.x. Older versions may work, but they can also break.
 
 ### MySQL
 
@@ -52,18 +63,7 @@ To use PostgreSQL, set the following parameters:
     :powerdns_backend: 'postgresql'
     :powerdns_postgresql_connection: 'host=localhost user=powerdns password=mypassword dbname=powerdns'
 
-
-### REST
-
-To use the REST backend, set the following parameters:
-
-    :powerdns_backend: 'rest'
-    :powerdns_rest_url: 'http://localhost:8081/api/v1/servers/localhost'
-    :powerdns_rest_api_key: 'apikey'
-
-Note the API is only tested with 4.x. Older versions may work, but they can also break.
-
-### DNSSEC
+### DNSSEC with MySQL and PostgreSQL
 
 In case you've enabled DNSSEC (as you should), all database backends require a rectify-zone after every zone change. The REST backend ignores this setting. The pdnssec command is configurable:
 
@@ -72,6 +72,8 @@ In case you've enabled DNSSEC (as you should), all database backends require a r
 Or a more complex example:
 
     :powerdns_pdnssec: 'sudo pdnssec --config-name=myconfig'
+
+Note that PowerDNS 4.x now uses `pdnsutil` rather than `pdnssec`.
 
 ## Contributing
 
