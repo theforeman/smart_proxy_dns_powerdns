@@ -58,8 +58,6 @@ module ::Proxy::Dns::Powerdns
             settings[:dns_ttl],
           )
         end)
-      else
-        raise ::Proxy::Error::ConfigurationError.new("Invalid backend, is expected to be mysql, postgresql, rest or dummy")
       end
     end
   end
