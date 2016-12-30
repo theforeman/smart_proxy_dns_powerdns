@@ -5,13 +5,13 @@ module Proxy::Dns::Powerdns::Backend
 
     attr_reader :hostname, :username, :password, :database
 
-    def initialize(a_server = nil, a_ttl = nil)
-      @hostname = Proxy::Dns::Powerdns::Plugin.settings.powerdns_mysql_hostname || 'localhost'
-      @username = Proxy::Dns::Powerdns::Plugin.settings.powerdns_mysql_username
-      @password = Proxy::Dns::Powerdns::Plugin.settings.powerdns_mysql_password
-      @database = Proxy::Dns::Powerdns::Plugin.settings.powerdns_mysql_database
+    def initialize(a_server, a_ttl, pdnssec, hostname, username, password, database)
+      @hostname = hostname
+      @username = username
+      @password = password
+      @database = database
 
-      super(a_server, a_ttl)
+      super(a_server, a_ttl, pdnssec)
     end
 
     def connection

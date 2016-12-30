@@ -7,7 +7,7 @@ This plugin adds a new DNS provider for managing records in PowerDNS.
 See [How_to_Install_a_Smart-Proxy_Plugin](http://projects.theforeman.org/projects/foreman/wiki/How_to_Install_a_Smart-Proxy_Plugin)
 for how to install Smart Proxy plugins
 
-This plugin is compatible with Smart Proxy 1.11 or higher.
+This plugin is compatible with Smart Proxy 1.13 or higher.
 
 When installing using "gem", make sure to install the bundle file:
 
@@ -15,7 +15,13 @@ When installing using "gem", make sure to install the bundle file:
 
 ## Upgrading
 
-Per version 0.2.0 the backend is a required parameter.
+### 0.3.0
+
+* The minimum Smart Proxy version is now 1.13
+
+### 0.2.0
+
+* The backend is a required parameter.
 
 ## Configuration
 

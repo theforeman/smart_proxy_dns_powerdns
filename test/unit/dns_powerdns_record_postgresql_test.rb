@@ -1,20 +1,19 @@
 require 'test_helper'
 
-require 'smart_proxy_dns_powerdns/dns_powerdns_plugin'
 require 'smart_proxy_dns_powerdns/dns_powerdns_main'
 require 'smart_proxy_dns_powerdns/backend/postgresql'
 
 class DnsPowerdnsBackendPostgresqlTest < Test::Unit::TestCase
-  # Test that correct initialization works
-  def test_initialize_dummy_with_settings
-    Proxy::Dns::Powerdns::Plugin.load_test_settings(:powerdns_postgresql_connection => 'dbname=powerdns')
-    provider = klass.new
-    assert_equal 'dbname=powerdns', provider.connection_str
+  def setup
+    @provider = Proxy::Dns::Powerdns::Backend::Postgresql.new('localhost', 86400, 'sudo pdnssec',
+                                                              'dbname=powerdns')
+    @connection = mock()
+    @provider.stubs(:connection).returns(@connection)
   end
 
-  private
-
-  def klass
-    Proxy::Dns::Powerdns::Backend::Postgresql
+  def test_initialize
+    assert_equal 86400, @provider.ttl
+    assert_equal 'sudo pdnssec', @provider.pdnssec
+    assert_equal 'dbname=powerdns', @provider.connection_str
   end
 end

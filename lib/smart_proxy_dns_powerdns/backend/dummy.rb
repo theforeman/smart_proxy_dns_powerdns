@@ -1,7 +1,7 @@
 module Proxy::Dns::Powerdns::Backend
   class Dummy < ::Proxy::Dns::Powerdns::Record
 
-    def initialize(a_server = nil, a_ttl = nil)
+    def initialize(a_server, a_ttl)
       super(a_server, a_ttl)
     end
 

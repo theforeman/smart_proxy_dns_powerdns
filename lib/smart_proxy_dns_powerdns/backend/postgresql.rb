@@ -5,10 +5,10 @@ module Proxy::Dns::Powerdns::Backend
 
     attr_reader :connection_str
 
-    def initialize(a_server = nil, a_ttl = nil)
-      @connection_str = Proxy::Dns::Powerdns::Plugin.settings.powerdns_postgresql_connection
+    def initialize(a_server, a_ttl, pdnssec, connection)
+      @connection_str = connection
 
-      super(a_server, a_ttl)
+      super(a_server, a_ttl, pdnssec)
     end
 
     def connection

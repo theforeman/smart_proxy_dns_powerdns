@@ -1,6 +1,5 @@
 require 'dns/dns'
 require 'dns_common/dns_common'
-require 'ipaddr'
 
 module Proxy::Dns::Powerdns
   class Record < ::Proxy::Dns::Record
@@ -9,9 +8,9 @@ module Proxy::Dns::Powerdns
 
     attr_reader :pdnssec
 
-    def initialize(a_server = nil, a_ttl = nil)
-      @pdnssec = Proxy::Dns::Powerdns::Plugin.settings.powerdns_pdnssec
-      super(a_server, a_ttl || Proxy::Dns::Plugin.settings.dns_ttl)
+    def initialize(a_server, a_ttl, pdnssec = nil)
+      @pdnssec = pdnssec
+      super(a_server, a_ttl)
     end
 
     def create_a_record(fqdn, ip)

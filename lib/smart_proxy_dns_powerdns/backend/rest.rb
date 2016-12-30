@@ -9,9 +9,9 @@ module Proxy::Dns::Powerdns::Backend
 
     attr_reader :url, :api_key
 
-    def initialize(a_server = nil, a_ttl = nil)
-      @url = Proxy::Dns::Powerdns::Plugin.settings.powerdns_rest_url
-      @api_key = Proxy::Dns::Powerdns::Plugin.settings.powerdns_rest_api_key
+    def initialize(a_server, a_ttl, url, api_key)
+      @url = url
+      @api_key = api_key
 
       super(a_server, a_ttl)
     end
