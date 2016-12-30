@@ -67,11 +67,6 @@ module Proxy::Dns::Powerdns::Backend
       patch_records domain_id, rrset
     end
 
-    def rectify_zone domain
-      # Not needed by the API
-      true
-    end
-
     private
 
     def patch_records domain_id, rrset
