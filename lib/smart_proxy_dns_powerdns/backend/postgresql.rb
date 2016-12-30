@@ -36,7 +36,7 @@ module Proxy::Dns::Powerdns::Backend
 
     def delete_record domain_id, name, type
       result = connection.exec_params("DELETE FROM records WHERE domain_id=$1::int AND name=$2 AND type=$3", [domain_id, name, type])
-      result.cmdtuples == 1
+      result.cmdtuples >= 1
     end
   end
 end

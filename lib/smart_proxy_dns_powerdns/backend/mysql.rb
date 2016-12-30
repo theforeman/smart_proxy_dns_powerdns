@@ -43,7 +43,7 @@ module Proxy::Dns::Powerdns::Backend
       name = connection.escape(name)
       type = connection.escape(type)
       connection.query("DELETE FROM records WHERE domain_id=#{domain_id} AND name='#{name}' AND type='#{type}'")
-      connection.affected_rows == 1
+      connection.affected_rows >= 1
     end
   end
 end
