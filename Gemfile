@@ -10,6 +10,7 @@ group :development do
 end
 
 group :test do
+  gem 'coveralls', require: false
   gem 'test-unit' unless RUBY_VERSION.start_with? '1.8'
   gem 'webmock'
 
