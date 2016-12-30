@@ -12,7 +12,7 @@ module Proxy::Dns::Powerdns::Backend
       }
     end
 
-    def create_record domain_id, name, ttl, content, type
+    def create_record domain_id, name, content, type
       false
     end
 
