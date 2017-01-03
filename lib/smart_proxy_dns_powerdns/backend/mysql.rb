@@ -26,7 +26,7 @@ module Proxy::Dns::Powerdns::Backend
         domain = row
       end
 
-      raise Proxy::Dns::Error, "Unable to determine zone. Zone must exist in PowerDNS." unless domain
+      raise Proxy::Dns::Error, "Unable to determine zone for #{name}. Zone must exist in PowerDNS." unless domain
 
       domain
     end

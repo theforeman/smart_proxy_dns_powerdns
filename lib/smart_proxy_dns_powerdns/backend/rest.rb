@@ -33,7 +33,7 @@ module Proxy::Dns::Powerdns::Backend
         }.max_by { |zone| zone['name'].length }
       end
 
-      raise Proxy::Dns::Error, "Unable to determine zone. Zone must exist in PowerDNS." unless result
+      raise Proxy::Dns::Error, "Unable to determine zone for #{name}. Zone must exist in PowerDNS." unless result
 
       result
     end

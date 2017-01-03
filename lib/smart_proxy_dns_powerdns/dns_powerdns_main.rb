@@ -89,9 +89,9 @@ module Proxy::Dns::Powerdns
       true
     end
 
-    def get_zone(fqdn)
+    def get_zone(name)
       # TODO: backend specific
-      raise Proxy::Dns::Error, "Unable to determine zone. Zone must exist in PowerDNS."
+      raise Proxy::Dns::Error, "Unable to determine zone for #{name}. Zone must exist in PowerDNS."
     end
 
     def create_record(domain_id, name, type, content)
