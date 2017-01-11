@@ -64,4 +64,12 @@ class DnsPowerdnsBackendPostgresqlTest < Test::Unit::TestCase
 
     assert_true @provider.delete_record(1, 'test.example.com', 'A')
   end
+
+  def test_get_soa_content
+    domain_id = 1
+    query = "SELECT content FROM records WHERE domain_id=$1::int AND type='SOA'"
+    soa = 'ns1.google.com. dns-admin.google.com. 144210844 900 900 1800 60'
+    @connection.expects(:exec_params).with(query, [domain_id]).yields([{'content' => soa}])
+    assert_equal @provider.get_soa_content(domain_id), [soa]
+  end
 end

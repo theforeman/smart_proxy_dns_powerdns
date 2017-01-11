@@ -15,6 +15,16 @@ module Proxy::Dns::Powerdns::Backend
       @connection ||= PG.connect(connection_str)
     end
 
+    def get_soa_content domain_id
+      soa = []
+      connection.exec_params("SELECT content FROM records WHERE domain_id=$1::int AND type='SOA'", [domain_id]) do |result|
+        result.each do |row|
+          soa.push(row['content'])
+        end
+      end
+      soa
+    end
+
     def get_zone name
       domain = nil
 

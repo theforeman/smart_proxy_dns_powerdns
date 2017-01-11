@@ -94,6 +94,18 @@ module Proxy::Dns::Powerdns
       raise Proxy::Dns::Error, "Unable to determine zone for #{name}. Zone must exist in PowerDNS."
     end
 
+    def get_soa(domain_id, domain_name)
+      soa = get_soa_content(domain_id)
+      raise Proxy::Dns::Error, "Missing SOA record for domain #{domain_name}" if soa.empty?
+      raise Proxy::Dns::Error, "Multiple SOA records for domain #{domain_name}" if soa.size != 1
+      soa[0]
+    end
+
+    def get_soa_content(domain_id)
+      # TODO: backend specific
+      raise Proxy::Dns::Error, "Unable to get SOA record (feature not implemented)"
+    end
+
     def create_record(domain_id, name, type, content)
       # TODO: backend specific
       false

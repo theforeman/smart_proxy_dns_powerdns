@@ -31,6 +31,10 @@ module Proxy::Dns::Powerdns::Backend
       domain
     end
 
+    def get_soa_content domain_id
+      connection.query("SELECT content FROM records WHERE domain_id=#{domain_id} AND type='SOA'").map { |e| e['content'] }
+    end
+
     def create_record domain_id, name, type, content
       name = connection.escape(name)
       content = connection.escape(content)

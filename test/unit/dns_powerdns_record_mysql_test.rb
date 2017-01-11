@@ -54,4 +54,11 @@ class DnsPowerdnsBackendMysqlTest < Test::Unit::TestCase
     assert @provider.delete_record(1, 'test.example.com', 'A')
   end
 
+  def test_get_soa_content
+    domain_id = 1
+    query = "SELECT content FROM records WHERE domain_id=#{domain_id} AND type='SOA'"
+    soa = 'ns1.google.com. dns-admin.google.com. 144210844 900 900 1800 60'
+    @connection.expects(:query).with(query).returns([{'content' => soa}])
+    assert_equal @provider.get_soa_content(domain_id), [soa]
+  end
 end

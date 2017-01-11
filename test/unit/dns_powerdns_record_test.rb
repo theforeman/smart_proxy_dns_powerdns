@@ -161,6 +161,20 @@ class DnsPowerdnsRecordTest < Test::Unit::TestCase
     assert @provider.do_remove('test.example.com', 'A')
   end
 
+  def test_get_soa
+    soa = 'ns1.google.com. dns-admin.google.com. 144210844 900 900 1800 60'
+    domain = 'google.com'
+    domain_id = 1
+    @provider.expects(:get_soa_content).with(domain_id).returns([])
+    assert_raise(Proxy::Dns::Error) { @provider.get_soa(domain_id, domain) }
+
+    @provider.expects(:get_soa_content).with(domain_id).returns([soa, soa])
+    assert_raise(Proxy::Dns::Error) { @provider.get_soa(domain_id, domain) }
+
+    @provider.expects(:get_soa_content).with(domain_id).returns([soa])
+    assert_equal @provider.get_soa(domain_id, domain), soa
+  end
+
   private
 
   def fqdn
