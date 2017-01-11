@@ -175,6 +175,16 @@ class DnsPowerdnsRecordTest < Test::Unit::TestCase
     assert_equal @provider.get_soa(domain_id, domain), soa
   end
 
+  def test_increment_soa_serial
+    prefix = 'ns2.google.com. dns-admin.google.com.'
+    serial = 144200724
+    suffix = '900 900 1800 60'
+    assert_raise(Proxy::Dns::Error) { @provider.increment_soa_serial(prefix, 'google.com') }
+    assert_raise(Proxy::Dns::Error) { @provider.increment_soa_serial("#{prefix} invalid_serial #{suffix}", 'google.com') }
+
+    assert_equal @provider.increment_soa_serial("#{prefix} #{serial} #{suffix}", 'google.com'), "#{prefix} #{serial+1} #{suffix}"
+  end
+
   private
 
   def fqdn
