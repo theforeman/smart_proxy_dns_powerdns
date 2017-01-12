@@ -31,6 +31,16 @@ module Proxy::Dns::Powerdns::Backend
       domain
     end
 
+    def get_soa_content domain_id
+      connection.query("SELECT content FROM records WHERE domain_id=#{domain_id} AND type='SOA'").map { |e| e['content'] }
+    end
+
+    def update_soa_content domain_id, new_soa
+      s = connection.escape(new_soa)
+      connection.query("UPDATE records SET content='#{s}' WHERE domain_id=#{domain_id} AND type='SOA'")
+      connection.affected_rows == 1
+    end
+
     def create_record domain_id, name, type, content
       name = connection.escape(name)
       content = connection.escape(content)

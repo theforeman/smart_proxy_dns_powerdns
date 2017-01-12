@@ -15,6 +15,21 @@ module Proxy::Dns::Powerdns::Backend
       @connection ||= PG.connect(connection_str)
     end
 
+    def get_soa_content domain_id
+      soa = []
+      connection.exec_params("SELECT content FROM records WHERE domain_id=$1::int AND type='SOA'", [domain_id]) do |result|
+        result.each do |row|
+          soa.push(row['content'])
+        end
+      end
+      soa
+    end
+
+    def update_soa_content domain_id, new_soa
+      result = connection.exec_params("UPDATE records SET content=$1 WHERE domain_id=$2::int AND type='SOA'", [new_soa, domain_id])
+      result.cmdtuples == 1
+    end
+
     def get_zone name
       domain = nil
 
