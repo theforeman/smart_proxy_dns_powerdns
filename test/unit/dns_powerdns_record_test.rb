@@ -169,9 +169,6 @@ class DnsPowerdnsRecordTest < Test::Unit::TestCase
   end
 
   def test_get_soa
-    soa = 'ns1.google.com. dns-admin.google.com. 144210844 900 900 1800 60'
-    domain = 'google.com'
-    domain_id = 1
     @provider.expects(:get_soa_content).with(domain_id).returns([])
     assert_raise(Proxy::Dns::Error) { @provider.get_soa(domain_id, domain) }
 
@@ -183,23 +180,15 @@ class DnsPowerdnsRecordTest < Test::Unit::TestCase
   end
 
   def test_increment_soa_serial
-    prefix = 'ns2.google.com. dns-admin.google.com.'
-    serial = 144200724
-    suffix = '900 900 1800 60'
-    assert_raise(Proxy::Dns::Error) { @provider.increment_soa_serial(prefix, 'google.com') }
-    assert_raise(Proxy::Dns::Error) { @provider.increment_soa_serial("#{prefix} invalid_serial #{suffix}", 'google.com') }
-
-    assert_equal @provider.increment_soa_serial("#{prefix} #{serial} #{suffix}", 'google.com'), "#{prefix} #{serial+1} #{suffix}"
+    assert_raise(Proxy::Dns::Error) { @provider.increment_soa_serial('invalid soa', domain) }
+    assert_raise(Proxy::Dns::Error) { @provider.increment_soa_serial("ns1.#{domain}. dns-admin.#{domain}. invalid_serial 900 900 1800 60", domain) }
+    assert_equal @provider.increment_soa_serial(soa, domain), soa_updated
   end
 
   def test_update_soa
-    soa = 'ns1.google.com. dns-admin.google.com. 144210844 900 900 1800 60'
-    new_soa = 'ns1.google.com. dns-admin.google.com. 144210845 900 900 1800 60'
-    domain = 'google.com'
-    domain_id = 1
     @provider.expects(:get_soa).with(domain_id, domain).returns(soa)
-    @provider.expects(:increment_soa_serial).with(soa, domain).returns(new_soa)
-    @provider.expects(:update_soa_content).with(domain_id, new_soa).returns(true)
+    @provider.expects(:increment_soa_serial).with(soa, domain).returns(soa_updated)
+    @provider.expects(:update_soa_content).with(domain_id, soa_updated).returns(true)
 
     assert @provider.update_soa(domain_id, domain)
   end
@@ -244,5 +233,17 @@ class DnsPowerdnsRecordTest < Test::Unit::TestCase
 
   def reverse_ipv6_domain
     'd.c.b.a.4.3.2.1.8.b.d.0.1.0.0.2.ip6.arpa'
+  end
+
+  def soa_serial
+    144210844
+  end
+
+  def soa
+    "ns1.#{domain}. dns-admin.#{domain}. #{soa_serial} 900 900 1800 60"
+  end
+
+  def soa_updated
+    "ns1.#{domain}. dns-admin.#{domain}. #{soa_serial+1} 900 900 1800 60"
   end
 end
