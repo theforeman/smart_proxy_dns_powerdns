@@ -72,4 +72,12 @@ class DnsPowerdnsBackendPostgresqlTest < Test::Unit::TestCase
     @connection.expects(:exec_params).with(query, [domain_id]).yields([{'content' => soa}])
     assert_equal @provider.get_soa_content(domain_id), [soa]
   end
+
+  def test_update_soa_content
+    query = "UPDATE records SET content=$1 WHERE domain_id=$2::int AND type='SOA'"
+    soa = 'ns1.google.com. dns-admin.google.com. 144210844 900 900 1800 60'
+    @connection.expects(:exec_params).with(query, [soa, 1]).returns(mock(:cmdtuples => 1))
+    assert @provider.update_soa_content(1, soa)
+  end
+
 end

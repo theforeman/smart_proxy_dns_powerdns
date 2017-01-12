@@ -25,6 +25,11 @@ module Proxy::Dns::Powerdns::Backend
       soa
     end
 
+    def update_soa_content domain_id, new_soa
+      result = connection.exec_params("UPDATE records SET content=$1 WHERE domain_id=$2::int AND type='SOA'", [new_soa, domain_id])
+      result.cmdtuples == 1
+    end
+
     def get_zone name
       domain = nil
 
