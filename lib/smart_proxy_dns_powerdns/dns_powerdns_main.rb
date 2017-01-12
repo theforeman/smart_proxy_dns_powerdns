@@ -111,6 +111,12 @@ module Proxy::Dns::Powerdns
       raise Proxy::Dns::Error, "Unable to update SOA record (feature not implemented)"
     end
 
+    def update_soa(domain_id, domain_name)
+      soa = get_soa(domain_id, domain_name)
+      new_soa = increment_soa_serial(soa, domain_name)
+      update_soa_content(domain_id, new_soa)
+    end
+
     def increment_soa_serial(soa, domain_name)
       # SOA record format (see RFC 1035, 3.3.13)
       #

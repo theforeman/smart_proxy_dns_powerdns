@@ -185,6 +185,18 @@ class DnsPowerdnsRecordTest < Test::Unit::TestCase
     assert_equal @provider.increment_soa_serial("#{prefix} #{serial} #{suffix}", 'google.com'), "#{prefix} #{serial+1} #{suffix}"
   end
 
+  def test_update_soa
+    soa = 'ns1.google.com. dns-admin.google.com. 144210844 900 900 1800 60'
+    new_soa = 'ns1.google.com. dns-admin.google.com. 144210845 900 900 1800 60'
+    domain = 'google.com'
+    domain_id = 1
+    @provider.expects(:get_soa).with(domain_id, domain).returns(soa)
+    @provider.expects(:increment_soa_serial).with(soa, domain).returns(new_soa)
+    @provider.expects(:update_soa_content).with(domain_id, new_soa).returns(true)
+
+    assert @provider.update_soa(domain_id, domain)
+  end
+
   private
 
   def fqdn
