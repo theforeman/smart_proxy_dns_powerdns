@@ -5,7 +5,7 @@ module Proxy::Dns::Powerdns
   class Plugin < ::Proxy::Provider
     plugin :dns_powerdns, ::Proxy::Dns::Powerdns::VERSION
 
-    requires :dns, '>= 1.13'
+    requires :dns, '>= 1.15'
 
     validate_presence :powerdns_backend
 

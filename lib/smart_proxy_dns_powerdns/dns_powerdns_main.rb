@@ -13,50 +13,6 @@ module Proxy::Dns::Powerdns
       super(a_server, a_ttl)
     end
 
-    def create_a_record(fqdn, ip)
-      case a_record_conflicts(fqdn, ip)
-      when 1
-        raise(Proxy::Dns::Collision, "'#{fqdn} 'is already in use")
-      when 0 then
-        return nil
-      else
-        do_create(fqdn, ip, "A")
-      end
-    end
-
-    def create_aaaa_record(fqdn, ip)
-      case aaaa_record_conflicts(fqdn, ip)
-      when 1
-        raise(Proxy::Dns::Collision, "'#{fqdn} 'is already in use")
-      when 0 then
-        return nil
-      else
-        do_create(fqdn, ip, "AAAA")
-      end
-    end
-
-    def create_cname_record(fqdn, target)
-      case cname_record_conflicts(fqdn, target)
-      when 1 then
-        raise(Proxy::Dns::Collision, "'#{fqdn} 'is already in use")
-      when 0 then
-        return nil
-      else
-        do_create(fqdn, target, "CNAME")
-      end
-    end
-
-    def create_ptr_record(fqdn, ptr)
-      case ptr_record_conflicts(fqdn, ptr_to_ip(ptr))
-      when 1
-        raise(Proxy::Dns::Collision, "'#{fqdn} 'is already in use")
-      when 0 then
-        return nil
-      else
-        do_create(ptr, fqdn, "PTR")
-      end
-    end
-
     def do_create(name, value, type)
       zone = get_zone(name)
       if create_record(zone['id'], name, type, value)
@@ -65,22 +21,6 @@ module Proxy::Dns::Powerdns
         raise Proxy::Dns::Error.new("Failed to insert record #{name} #{type} #{value}")
       end
       true
-    end
-
-    def remove_a_record(fqdn)
-      do_remove(fqdn, "A")
-    end
-
-    def remove_aaaa_record(fqdn)
-      do_remove(fqdn, "AAAA")
-    end
-
-    def remove_cname_record(fqdn)
-      do_remove(fqdn, "CNAME")
-    end
-
-    def remove_ptr_record(ptr)
-      do_remove(ptr, "PTR")
     end
 
     def do_remove(name, type)
