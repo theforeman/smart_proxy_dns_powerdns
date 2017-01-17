@@ -35,7 +35,7 @@ class DnsPowerdnsBackendPostgresqlTest < Test::Unit::TestCase
 
   def test_create_record
     @connection.expects(:exec_params).
-      with("INSERT INTO records (domain_id, name, ttl, content, type) VALUES ($1::int, $2, $3::int, $4, $5)", [1, 'test.example.com', 86400, '10.1.1.1', 'A']).
+      with("INSERT INTO records (domain_id, name, ttl, content, type, change_date) VALUES ($1::int, $2, $3::int, $4, $5, extract(epoch from now()))", [1, 'test.example.com', 86400, '10.1.1.1', 'A']).
       returns(mock(:cmdtuples => 1))
 
     assert_true @provider.create_record(1, 'test.example.com', 'A', '10.1.1.1')
@@ -53,6 +53,9 @@ class DnsPowerdnsBackendPostgresqlTest < Test::Unit::TestCase
     @connection.expects(:exec_params).
       with("DELETE FROM records WHERE domain_id=$1::int AND name=$2 AND type=$3", [1, 'test.example.com', 'A']).
       returns(mock(:cmdtuples => 1))
+    @connection.expects(:exec_params).
+      with("UPDATE records SET change_date=extract(epoch from now()) WHERE domain_id=$1::int AND type='SOA'", [1]).
+      returns(mock(:cmdtuples => 1))
 
     assert_true @provider.delete_record(1, 'test.example.com', 'A')
   end
@@ -61,6 +64,9 @@ class DnsPowerdnsBackendPostgresqlTest < Test::Unit::TestCase
     @connection.expects(:exec_params).
       with("DELETE FROM records WHERE domain_id=$1::int AND name=$2 AND type=$3", [1, 'test.example.com', 'A']).
       returns(mock(:cmdtuples => 2))
+    @connection.expects(:exec_params).
+      with("UPDATE records SET change_date=extract(epoch from now()) WHERE domain_id=$1::int AND type='SOA'", [1]).
+      returns(mock(:cmdtuples => 1))
 
     assert_true @provider.delete_record(1, 'test.example.com', 'A')
   end

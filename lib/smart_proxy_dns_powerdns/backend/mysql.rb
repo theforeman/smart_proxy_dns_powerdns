@@ -35,7 +35,7 @@ module Proxy::Dns::Powerdns::Backend
       name = connection.escape(name)
       content = connection.escape(content)
       type = connection.escape(type)
-      connection.query("INSERT INTO records (domain_id, name, ttl, content, type) VALUES (#{domain_id}, '#{name}', #{ttl.to_i}, '#{content}', '#{type}')")
+      connection.query("INSERT INTO records (domain_id, name, ttl, content, type, change_date) VALUES (#{domain_id}, '#{name}', #{ttl.to_i}, '#{content}', '#{type}', UNIX_TIMESTAMP())")
       connection.affected_rows == 1
     end
 
@@ -43,7 +43,12 @@ module Proxy::Dns::Powerdns::Backend
       name = connection.escape(name)
       type = connection.escape(type)
       connection.query("DELETE FROM records WHERE domain_id=#{domain_id} AND name='#{name}' AND type='#{type}'")
-      connection.affected_rows >= 1
+      ret = connection.affected_rows >= 1
+      if ret
+        connection.query("UPDATE records SET change_date=UNIX_TIMESTAMP() WHERE domain_id=#{domain_id} AND type='SOA'")
+        ret = connection.affected_rows == 1
+      end
+      ret
     end
   end
 end

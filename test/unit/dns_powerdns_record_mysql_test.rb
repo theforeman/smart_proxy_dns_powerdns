@@ -39,7 +39,7 @@ class DnsPowerdnsBackendMysqlTest < Test::Unit::TestCase
     @connection.expects(:escape).with('test.example.com').returns('test.example.com')
     @connection.expects(:escape).with('A').returns('A')
     @connection.expects(:escape).with('10.1.1.1').returns('10.1.1.1')
-    @connection.expects(:query).with("INSERT INTO records (domain_id, name, ttl, content, type) VALUES (1, 'test.example.com', 86400, '10.1.1.1', 'A')")
+    @connection.expects(:query).with("INSERT INTO records (domain_id, name, ttl, content, type, change_date) VALUES (1, 'test.example.com', 86400, '10.1.1.1', 'A', UNIX_TIMESTAMP())")
     @connection.expects(:affected_rows).returns(1)
 
     assert @provider.create_record(1, 'test.example.com', 'A', '10.1.1.1')
@@ -50,8 +50,18 @@ class DnsPowerdnsBackendMysqlTest < Test::Unit::TestCase
     @connection.expects(:escape).with('A').returns('A')
     @connection.expects(:query).with("DELETE FROM records WHERE domain_id=1 AND name='test.example.com' AND type='A'")
     @connection.expects(:affected_rows).returns(1)
-
+    @connection.expects(:query).with("UPDATE records SET change_date=UNIX_TIMESTAMP() WHERE domain_id=1 AND type='SOA'")
+    @connection.expects(:affected_rows).returns(1)
     assert @provider.delete_record(1, 'test.example.com', 'A')
+  end
+
+  def test_delete_no_record
+    @connection.expects(:escape).with('test.example.com').returns('test.example.com')
+    @connection.expects(:escape).with('A').returns('A')
+    @connection.expects(:query).with("DELETE FROM records WHERE domain_id=1 AND name='test.example.com' AND type='A'")
+    @connection.expects(:affected_rows).returns(0)
+
+    assert_false @provider.delete_record(1, 'test.example.com', 'A')
   end
 
 end

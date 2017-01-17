@@ -30,13 +30,18 @@ module Proxy::Dns::Powerdns::Backend
     end
 
     def create_record domain_id, name, type, content
-      result = connection.exec_params("INSERT INTO records (domain_id, name, ttl, content, type) VALUES ($1::int, $2, $3::int, $4, $5)", [domain_id, name, ttl, content, type])
+      result = connection.exec_params("INSERT INTO records (domain_id, name, ttl, content, type, change_date) VALUES ($1::int, $2, $3::int, $4, $5, extract(epoch from now()))", [domain_id, name, ttl, content, type])
       result.cmdtuples == 1
     end
 
     def delete_record domain_id, name, type
       result = connection.exec_params("DELETE FROM records WHERE domain_id=$1::int AND name=$2 AND type=$3", [domain_id, name, type])
-      result.cmdtuples >= 1
+      ret = result.cmdtuples >= 1
+      if ret
+        result = connection.exec_params("UPDATE records SET change_date=extract(epoch from now()) WHERE domain_id=$1::int AND type='SOA'", [domain_id])
+        ret = result.cmdtuples == 1
+      end
+      ret
     end
   end
 end
