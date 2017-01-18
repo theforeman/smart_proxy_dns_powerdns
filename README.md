@@ -44,7 +44,7 @@ To use the REST backend, set the following parameters:
     :powerdns_rest_url: 'http://localhost:8081/api/v1/servers/localhost'
     :powerdns_rest_api_key: 'apikey'
 
-Note the API is only tested with 4.x. Older versions may work, but they can also break.
+**Note** only API v1 from PowerDNS 4.x is supported. The v0 API from 3.x is unsupported.
 
 ### MySQL
 
