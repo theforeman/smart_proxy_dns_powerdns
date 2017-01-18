@@ -75,6 +75,18 @@ Or a more complex example:
 
 Note that PowerDNS 4.x now uses `pdnsutil` rather than `pdnssec`.
 
+### SOA autoserial with MySQL and PostgreSQL
+
+PowerDNS (>= 3.3) provides a feature called `autoserial` that takes care of managing the serial of `SOA` records.
+
+There are many options available regarding how PowerDNS generates the serial and details can be found looking for the `SOA-EDIT` option in PowerDNS.
+
+One option is to let the PowerDNS backend determine the `SOA` serial using the biggest `change_date` of the records associated with the DNS domain.
+`smart_proxy_dns_powerdns` uses this approach and updates the `change_date` field of changed records, setting them to the current timestamp of the database server, represented as **the number of seconds since EPOCH**.
+
+* when a new record is created, its `change_date` is set accordingly
+* when a record is deleted, the `change_date` of the `SOA` record for the domain is updated
+
 ## Contributing
 
 Fork and send a Pull Request. Thanks!
