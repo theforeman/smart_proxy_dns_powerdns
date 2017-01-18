@@ -43,12 +43,16 @@ module Proxy::Dns::Powerdns::Backend
       name = connection.escape(name)
       type = connection.escape(type)
       connection.query("DELETE FROM records WHERE domain_id=#{domain_id} AND name='#{name}' AND type='#{type}'")
-      ret = connection.affected_rows >= 1
-      if ret
-        connection.query("UPDATE records SET change_date=UNIX_TIMESTAMP() WHERE domain_id=#{domain_id} AND type='SOA'")
-        ret = connection.affected_rows == 1
+      return false if connection.affected_rows == 0
+
+      connection.query("UPDATE records SET change_date=UNIX_TIMESTAMP() WHERE domain_id=#{domain_id} AND type='SOA'")
+      affected_rows = connection.affected_rows
+      if affected_rows > 1
+        logger.warning("Updated multiple SOA records (host=#{name}, domain_id=#{domain_id}). Check your zone records for duplicate SOA entries.")
+      elsif affected_rows == 0
+        logger.info("No SOA record updated (host=#{name}, domain_id=#{domain_id}). This can be caused by either a missing SOA record for the zone or consecutive updates of the same zone during the same second.")
       end
-      ret
+      true
     end
   end
 end

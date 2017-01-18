@@ -36,12 +36,16 @@ module Proxy::Dns::Powerdns::Backend
 
     def delete_record domain_id, name, type
       result = connection.exec_params("DELETE FROM records WHERE domain_id=$1::int AND name=$2 AND type=$3", [domain_id, name, type])
-      ret = result.cmdtuples >= 1
-      if ret
-        result = connection.exec_params("UPDATE records SET change_date=extract(epoch from now()) WHERE domain_id=$1::int AND type='SOA'", [domain_id])
-        ret = result.cmdtuples == 1
+      return false if result.cmdtuples == 0
+
+      result = connection.exec_params("UPDATE records SET change_date=extract(epoch from now()) WHERE domain_id=$1::int AND type='SOA'", [domain_id])
+      affected_rows = result.cmdtuples
+      if affected_rows > 1
+        logger.warning("Updated multiple SOA records (host=#{name}, domain_id=#{domain_id}). Check your zone records for duplicate SOA entries.")
+      elsif affected_rows == 0
+        logger.info("No SOA record updated (host=#{name}, domain_id=#{domain_id}). This can be caused by either a missing SOA record for the zone or consecutive updates of the same zone during the same second.")
       end
-      ret
+      true
     end
   end
 end
