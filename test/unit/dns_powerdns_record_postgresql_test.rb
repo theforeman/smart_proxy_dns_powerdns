@@ -35,33 +35,91 @@ class DnsPowerdnsBackendPostgresqlTest < Test::Unit::TestCase
 
   def test_create_record
     @connection.expects(:exec_params).
-      with("INSERT INTO records (domain_id, name, ttl, content, type) VALUES ($1::int, $2, $3::int, $4, $5)", [1, 'test.example.com', 86400, '10.1.1.1', 'A']).
+      with("INSERT INTO records (domain_id, name, ttl, content, type, change_date) VALUES ($1::int, $2, $3::int, $4, $5, extract(epoch from now()))", [1, 'test.example.com', 86400, '10.1.1.1', 'A']).
       returns(mock(:cmdtuples => 1))
 
     assert_true @provider.create_record(1, 'test.example.com', 'A', '10.1.1.1')
   end
 
   def test_delete_record_no_records
-    @connection.expects(:exec_params).
-      with("DELETE FROM records WHERE domain_id=$1::int AND name=$2 AND type=$3", [1, 'test.example.com', 'A']).
-      returns(mock(:cmdtuples => 0))
-
-    assert_false @provider.delete_record(1, 'test.example.com', 'A')
+    mock_delete_tuples(0)
+    assert_false run_delete_record
   end
 
   def test_delete_record_single_record
-    @connection.expects(:exec_params).
-      with("DELETE FROM records WHERE domain_id=$1::int AND name=$2 AND type=$3", [1, 'test.example.com', 'A']).
-      returns(mock(:cmdtuples => 1))
+    mock_delete_tuples(1)
+    mock_update_soa_tuples(1)
 
-    assert_true @provider.delete_record(1, 'test.example.com', 'A')
+    assert_true run_delete_record
   end
 
   def test_delete_record_multiple_records
-    @connection.expects(:exec_params).
-      with("DELETE FROM records WHERE domain_id=$1::int AND name=$2 AND type=$3", [1, 'test.example.com', 'A']).
-      returns(mock(:cmdtuples => 2))
+    mock_delete_tuples(2)
+    mock_update_soa_tuples(1)
 
-    assert_true @provider.delete_record(1, 'test.example.com', 'A')
+    assert_true run_delete_record
   end
+
+  def test_delete_record_no_soa
+    mock_delete_tuples(1)
+    mock_update_soa_tuples(0)
+    logger = mock()
+    logger.expects(:info)
+    @provider.stubs(:logger).returns(logger)
+
+    assert_true run_delete_record
+  end
+
+  def test_delete_record_multiple_soa
+    mock_delete_tuples(1)
+    mock_update_soa_tuples(2)
+    logger = mock()
+    logger.expects(:warning)
+    @provider.stubs(:logger).returns(logger)
+
+    assert_true run_delete_record
+  end
+
+  private
+
+  def mock_delete_tuples(cmdtuples)
+    @connection.expects(:exec_params).
+      with(query_delete, [domain_id, fqdn, record_type]).
+      returns(mock(:cmdtuples => cmdtuples))
+  end
+
+  def mock_update_soa_tuples(cmdtuples)
+    @connection.expects(:exec_params).
+      with(query_update_soa, [domain_id]).
+      returns(mock(:cmdtuples => cmdtuples))
+  end
+
+  def run_delete_record
+    @provider.delete_record(domain_id, fqdn, record_type)
+  end
+
+  def domain
+    'example.com'
+  end
+
+  def fqdn
+    "test.#{domain}"
+  end
+
+  def domain_id
+    1
+  end
+
+  def record_type
+    'A'
+  end
+
+  def query_delete
+    "DELETE FROM records WHERE domain_id=$1::int AND name=$2 AND type=$3"
+  end
+
+  def query_update_soa
+    "UPDATE records SET change_date=extract(epoch from now()) WHERE domain_id=$1::int AND type='SOA'"
+  end
+
 end
