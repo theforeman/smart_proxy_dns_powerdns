@@ -59,8 +59,10 @@ module Proxy::Dns::Powerdns
 
     def do_create(name, value, type)
       zone = get_zone(name)
-      unless create_record(zone['id'], name, type, value) and rectify_zone(zone['name'])
-        raise Proxy::Dns::Error.new("Failed to create record #{name} #{type} #{value}")
+      if create_record(zone['id'], name, type, value)
+        raise Proxy::Dns::Error.new("Failed to rectify zone #{zone['name']}") unless rectify_zone(zone['name'])
+      else
+        raise Proxy::Dns::Error.new("Failed to insert record #{name} #{type} #{value}")
       end
       true
     end
@@ -84,7 +86,7 @@ module Proxy::Dns::Powerdns
     def do_remove(name, type)
       zone = get_zone(name)
       if delete_record(zone['id'], name, type)
-        raise Proxy::Dns::Error.new("Failed to remove record #{name} #{type}") unless rectify_zone(zone['name'])
+        raise Proxy::Dns::Error.new("Failed to rectify zone #{name}") unless rectify_zone(zone['name'])
       end
       true
     end
