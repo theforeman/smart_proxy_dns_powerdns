@@ -108,9 +108,15 @@ module Proxy::Dns::Powerdns
 
     def rectify_zone domain
       if @pdnssec
-        %x(#{@pdnssec} rectify-zone "#{domain}")
+        logger.debug("running: #{@pdnssec} rectify-zone \"#{domain}\"")
+        pdnsout = %x(#{@pdnssec} rectify-zone "#{domain}" 2>&1)
 
-        $?.exitstatus == 0
+        if $?.exitstatus != 0
+          logger.debug("#{@pdnssec} (exit: #{$?.exitstatus}) says: #{pdnsout}")
+          false
+        else
+          true
+        end
       else
         true
       end
