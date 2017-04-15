@@ -28,6 +28,10 @@ When installing using "gem", make sure to install the bundle file:
 
 * The backend is a required parameter.
 
+When installing using "gem", make sure to install the bundle file:
+
+	echo "gem 'smart_proxy_dns_powerdns'" > /usr/share/foreman-proxy/bundler.d/dns_powerdns.rb
+
 ## Configuration
 
 To enable this DNS provider, edit `/etc/foreman-proxy/settings.d/dns.yml` and set:
