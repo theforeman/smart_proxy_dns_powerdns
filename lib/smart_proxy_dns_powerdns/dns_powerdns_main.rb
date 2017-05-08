@@ -31,6 +31,7 @@ module Proxy::Dns::Powerdns
       true
     end
 
+    # :nocov:
     def get_zone(name)
       # TODO: backend specific
       raise Proxy::Dns::Error, "Unable to determine zone for #{name}. Zone must exist in PowerDNS."
@@ -45,6 +46,7 @@ module Proxy::Dns::Powerdns
       # TODO: backend specific
       false
     end
+    # :nocov:
 
     def rectify_zone domain
       if @pdnssec
