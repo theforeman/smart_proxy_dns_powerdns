@@ -10,4 +10,9 @@ group :test do
   gem 'test-unit'
   gem 'webmock'
   gem 'rack', '~> 1.0', :require => false if RUBY_VERSION < '2.2.2'
+  if RUBY_VERSION < '2.2.2'
+    gem 'rack-test', '~> 0.7.0'
+  else
+    gem 'rack-test'
+  end
 end
