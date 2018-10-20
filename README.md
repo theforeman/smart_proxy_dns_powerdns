@@ -8,7 +8,7 @@ This plugin adds a new DNS provider for managing records in PowerDNS.
 
 ## Installation
 
-See [How_to_Install_a_Smart-Proxy_Plugin](http://projects.theforeman.org/projects/foreman/wiki/How_to_Install_a_Smart-Proxy_Plugin)
+See [How\_to\_Install\_a\_Smart-Proxy\_Plugin](http://projects.theforeman.org/projects/foreman/wiki/How_to_Install_a_Smart-Proxy_Plugin)
 for how to install Smart Proxy plugins
 
 This plugin is compatible with Smart Proxy 1.13 or higher.
@@ -86,6 +86,20 @@ One option is to let the PowerDNS backend determine the `SOA` serial using the b
 
 * when a new record is created, its `change_date` is set accordingly
 * when a record is deleted, the `change_date` of the `SOA` record for the domain is updated
+
+### Updating the SOA serial when using the REST backend
+
+When using the REST backend, the `change_date` of records isn't modified by this plugin.  To automatically increment the serial number of a zone, you can configure the [SOA-EDIT-API](https://doc.powerdns.com/authoritative/domainmetadata.html#soa-edit-api) zone metadata.  For example:
+
+```shell
+pdnsutil set-meta example.com SOA-EDIT-API DEFAULT
+```
+
+Other methods for managing the serial number are also available.  Alternatives to `SOA-EDIT-API` you might want to investigate include:
+  * Installing database triggers that update the SOA record.
+  * Reconfiguring powerdns's prepared statements such that the `change\_date` column gets updated when records are updated.
+
+Full discussion of these methods is beyond the scope of this README.
 
 ## Contributing
 
