@@ -8,16 +8,21 @@ This plugin adds a new DNS provider for managing records in PowerDNS.
 
 ## Installation
 
-See [How\_to\_Install\_a\_Smart-Proxy\_Plugin](http://projects.theforeman.org/projects/foreman/wiki/How_to_Install_a_Smart-Proxy_Plugin)
+See [How\_to\_Install\_a\_Smart-Proxy\_Plugin](https://projects.theforeman.org/projects/foreman/wiki/How_to_Install_a_Smart-Proxy_Plugin)
 for how to install Smart Proxy plugins
 
-This plugin is compatible with Smart Proxy 1.13 or higher.
+This plugin is compatible with Smart Proxy 1.15 or higher.
 
 When installing using "gem", make sure to install the bundle file:
 
 	echo "gem 'smart_proxy_dns_powerdns'" > /usr/share/foreman-proxy/bundler.d/dns_powerdns.rb
 
 ## Upgrading
+
+### 0.4.0
+
+* The minimum Smart Proxy version is now 1.15
+* The MySQL and PostgreSQL backends are officially deprecated and will be removed in the next release.
 
 ### 0.3.0
 
@@ -46,6 +51,10 @@ To use the REST backend, set the following parameters:
 
 **Note** only API v1 from PowerDNS 4.x is supported. The v0 API from 3.x is unsupported.
 
+### DNSSEC with REST
+
+Domains in PowerDNS need a rectify action after modification. In the past this was done using pdnsutil (which can still be set) but since PowerDNS 4.1.0 the API can do this automatically. The [domain metadata API-RECTIFY](https://doc.powerdns.com/authoritative/domainmetadata.html#metadata-api-rectify) needs to be set to `1`. When it's unset, the config variable [default-api-rectify](https://doc.powerdns.com/authoritative/settings.html#setting-default-api-rectify) will be used. PowerDNS 4.2.0 started to default to true. When this is used, the value for `:powerdns_pdnssec` in this plugin should be empty (default).
+
 ### MySQL
 
 To use MySQL, set the following parameters:
@@ -56,6 +65,8 @@ To use MySQL, set the following parameters:
     :powerdns_mysql_password: ''
     :powerdns_mysql_database: 'powerdns'
 
+**Note** use of this backend is deprecated. REST should be used.
+
 ### PostgreSQL
 
 To use PostgreSQL, set the following parameters:
@@ -63,17 +74,19 @@ To use PostgreSQL, set the following parameters:
     :powerdns_backend: 'postgresql'
     :powerdns_postgresql_connection: 'host=localhost user=powerdns password=mypassword dbname=powerdns'
 
+**Note** use of this backend is deprecated. REST should be used.
+
 ### DNSSEC with MySQL and PostgreSQL
 
 In case you've enabled DNSSEC (as you should), all database backends require a rectify-zone after every zone change. The REST backend ignores this setting. The pdnssec command is configurable:
 
-    :powerdns_pdnssec: 'pdnssec'
+    :powerdns_pdnssec: 'pdnsutil'
 
 Or a more complex example:
 
-    :powerdns_pdnssec: 'sudo pdnssec --config-name=myconfig'
+    :powerdns_pdnssec: 'sudo pdnsutil --config-name=myconfig'
 
-Note that PowerDNS 4.x now uses `pdnsutil` rather than `pdnssec`.
+Note that PowerDNS 3.x used `pdnssec` rather than `pdnsutil` which explains the naming of the option.
 
 ### SOA autoserial with MySQL and PostgreSQL
 
@@ -120,7 +133,7 @@ Then run the tests:
 
 ## Copyright
 
-Copyright (c) 2015 - 2016 Ewoud Kohl van Wijngaarden
+Copyright (c) 2015 - 2019 Ewoud Kohl van Wijngaarden
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -133,5 +146,5 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
