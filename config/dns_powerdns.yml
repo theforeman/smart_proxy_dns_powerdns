@@ -3,8 +3,5 @@
 # Configuration file for 'dns_powerdns' dns provider
 #
 
-# use these settings for powerdns
-#:powerdns_mysql_hostname:
-#:powerdns_mysql_username:
-#:powerdns_mysql_password:
-#:powerdns_mysql_database:
+#:powerdns_rest_url: "http://localhost:8081/api/v1/servers/localhost"
+#:powerdns_rest_api_key: ""

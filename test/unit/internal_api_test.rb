@@ -26,11 +26,11 @@ class InternalApiTest < Test::Unit::TestCase
   end
 
   def setup
-    @server = Proxy::Dns::Powerdns::Record.new('localhost', 3600)
+    @server = Proxy::Dns::Powerdns::Record.new('localhost', 3600, 'http://powerdns.example.com:8081/', 'apikey')
   end
 
   def test_create_a_record
-    name = "test.com"
+    name = "sub.example.com"
     value = "192.168.33.33"
     type = "A"
     @server.expects(:do_create).with(name, value, type)
@@ -39,7 +39,7 @@ class InternalApiTest < Test::Unit::TestCase
   end
 
   def test_create_ptr_record
-    name = "test.com"
+    name = "sub.example.com"
     value = "33.33.168.192.in-addr.arpa"
     type = "PTR"
     @server.expects(:do_create).with(value, name, type)
@@ -48,7 +48,7 @@ class InternalApiTest < Test::Unit::TestCase
   end
 
   def test_delete_a_record
-    name = "test.com"
+    name = "sub.example.com"
     @server.expects(:do_remove).with(name, "A")
     delete name
     assert last_response.ok?, "Last response was not ok: #{last_response.status} #{last_response.body}"

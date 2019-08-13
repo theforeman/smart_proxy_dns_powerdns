@@ -6,18 +6,18 @@ module Proxy::Dns::Powerdns
     include Proxy::Log
     include Proxy::Util
 
-    attr_reader :pdnssec
+    attr_reader :url, :api_key
 
-    def initialize(a_server, a_ttl, pdnssec = nil)
-      @pdnssec = pdnssec
+    def initialize(a_server, a_ttl, url, api_key)
+      @url = url
+      @api_key = api_key
+
       super(a_server, a_ttl)
     end
 
     def do_create(name, value, type)
       zone = get_zone(name)
-      if create_record(zone['id'], name, type, value)
-        raise Proxy::Dns::Error.new("Failed to rectify zone #{zone['name']}") unless rectify_zone(zone['name'])
-      else
+      unless create_record(zone['id'], name, type, value)
         raise Proxy::Dns::Error.new("Failed to insert record #{name} #{type} #{value}")
       end
       true
@@ -25,43 +25,85 @@ module Proxy::Dns::Powerdns
 
     def do_remove(name, type)
       zone = get_zone(name)
-      if delete_record(zone['id'], name, type)
-        raise Proxy::Dns::Error.new("Failed to rectify zone #{name}") unless rectify_zone(zone['name'])
+      delete_record(zone['id'], name, type)
+    end
+
+    def get_zone name
+      fqdn = Resolv::DNS::Name.create(name)
+      fqdn = Resolv::DNS::Name.create(name + '.') unless fqdn.absolute?
+      uri = URI("#{@url}/zones")
+
+      result = Net::HTTP.start(uri.host, uri.port, :use_ssl => uri.scheme == 'https') do |http|
+        request = Net::HTTP::Get.new uri
+        request['X-API-Key'] = @api_key
+        response = http.request request
+        zones = JSON.parse(response.body) rescue []
+
+        zones.select { |zone|
+          domain = Resolv::DNS::Name.create(zone['name'])
+          domain == fqdn or fqdn.subdomain_of?(domain)
+        }.max_by { |zone| zone['name'].length }
       end
-      true
+
+      raise Proxy::Dns::Error, "Unable to determine zone for #{name}. Zone must exist in PowerDNS." unless result
+
+      result
     end
 
-    # :nocov:
-    def get_zone(name)
-      # TODO: backend specific
-      raise Proxy::Dns::Error, "Unable to determine zone for #{name}. Zone must exist in PowerDNS."
+    def create_record domain_id, name, type, content
+      content += '.' if ['PTR', 'CNAME'].include?(type)
+      rrset = {
+        :name => name + '.',
+        :type => type,
+        :ttl => @ttl.to_i,
+        :changetype => :REPLACE,
+        :records => [
+          {
+            :content => content,
+            :disabled => false
+          }
+        ]
+      }
+
+      patch_records domain_id, rrset
     end
 
-    def create_record(domain_id, name, type, content)
-      # TODO: backend specific
-      false
+    def delete_record domain_id, name, type
+      rrset = {
+        :name => name + '.',
+        :type => type,
+        :changetype => :DELETE,
+        :records => []
+      }
+
+      patch_records domain_id, rrset
     end
 
-    def delete_record(domain_id, name, type)
-      # TODO: backend specific
-      false
-    end
-    # :nocov:
+    private
 
-    def rectify_zone domain
-      if @pdnssec
-        logger.debug("running: #{@pdnssec} rectify-zone \"#{domain}\"")
-        pdnsout = %x(#{@pdnssec} rectify-zone "#{domain}" 2>&1)
+    def patch_records domain_id, rrset
+      uri = URI("#{@url}/zones/#{domain_id}")
 
-        if $?.exitstatus != 0
-          logger.debug("#{@pdnssec} (exit: #{$?.exitstatus}) says: #{pdnsout}")
-          false
-        else
-          true
+      data = { :rrsets => [rrset] }
+
+      Net::HTTP.start(uri.host, uri.port, :use_ssl => uri.scheme == 'https') do |http|
+        request = Net::HTTP::Patch.new uri
+        request['X-API-Key'] = @api_key
+        request['Content-Type'] = 'application/json'
+        request.body = data.to_json
+        response = http.request request
+        unless response.is_a?(Net::HTTPSuccess)
+          begin
+            content = JSON.parse(response.body)
+          rescue
+            logger.debug "Failed to pach records for #{domain_id} with '#{rrset}': #{response.body}"
+            raise Proxy::Dns::Error.new("Failed to patch records")
+          end
+          raise Proxy::Dns::Error.new("Failed to patch records: #{content['error']}")
         end
-      else
-        true
       end
+
+      true
     end
   end
 end
