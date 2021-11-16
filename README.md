@@ -1,7 +1,7 @@
 # SmartProxyDnsPowerdns
 
 [![Gem Version](https://badge.fury.io/rb/smart_proxy_dns_powerdns.svg)](https://badge.fury.io/rb/smart_proxy_dns_powerdns)
-[![Build Status](https://travis-ci.org/theforeman/smart_proxy_dns_powerdns.svg?branch=master)](https://travis-ci.org/theforeman/smart_proxy_dns_powerdns)
+[![CI](https://github.com/theforeman/smart_proxy_dns_powerdns/actions/workflows/ci.yml/badge.svg)](https://github.com/theforeman/smart_proxy_dns_powerdns/actions/workflows/ci.yml)
 [![Coverage Status](https://coveralls.io/repos/github/theforeman/smart_proxy_dns_powerdns/badge.svg?branch=master)](https://coveralls.io/github/theforeman/smart_proxy_dns_powerdns?branch=master)
 
 This plugin adds a new DNS provider for managing records in PowerDNS.

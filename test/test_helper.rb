@@ -2,7 +2,7 @@ require 'coveralls'
 Coveralls.wear!
 
 require 'test/unit'
-require 'mocha/setup'
+require 'mocha/test_unit'
 require 'json'
 require 'ostruct'
 
